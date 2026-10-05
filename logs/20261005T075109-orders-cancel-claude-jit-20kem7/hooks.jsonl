@@ -1,0 +1,12 @@
+{"turn":5,"gate":"observed-red","tool":"edit_file","path":"src/orders/routes.ts","decision":"block","feedback":"BLOCKED observed-red: mapped tests test/orders.test.ts have not been observed failing at their current version; run_tests first"}
+{"turn":6,"gate":"test-write","tool":"write_file","path":"test/orders.test.ts","decision":"pass"}
+{"turn":6,"gate":"protect-existing-tests","tool":"write_file","path":"test/orders.test.ts","decision":"block","feedback":"BLOCKED protect-existing-tests: test/orders.test.ts existed before this change; tests and assertions may be added, not removed"}
+{"turn":7,"gate":"test-write","tool":"write_file","path":"test/orders-cancel.test.ts","decision":"pass"}
+{"turn":7,"gate":"protect-existing-tests","tool":"write_file","path":"test/orders-cancel.test.ts","decision":"pass"}
+{"turn":7,"gate":"standards-on-write","tool":"write_file","path":"test/orders-cancel.test.ts","decision":"pass"}
+{"turn":9,"gate":"observed-red","tool":"edit_file","path":"src/orders/store.ts","decision":"pass"}
+{"turn":9,"gate":"protect-existing-tests","tool":"edit_file","path":"src/orders/store.ts","decision":"pass"}
+{"turn":9,"gate":"standards-on-write","tool":"edit_file","path":"src/orders/store.ts","decision":"pass"}
+{"turn":10,"gate":"observed-red","tool":"edit_file","path":"src/orders/routes.ts","decision":"pass"}
+{"turn":10,"gate":"protect-existing-tests","tool":"edit_file","path":"src/orders/routes.ts","decision":"pass"}
+{"turn":10,"gate":"standards-on-write","tool":"edit_file","path":"src/orders/routes.ts","decision":"pass"}

@@ -21,3 +21,9 @@ Pull requests:
 - orders-cancel / openai: PR UNPROVEN: no origin remote (no origin remote configured)
 
 Extensibility simulation: **PASS** → [grader-sim.txt](grader-sim.txt)
+
+## Pull request opened by the harness
+
+After `origin` was added, the harness ran `orders-cancel` on the claude driver (offline provider) and its ship step
+pushed `harness/orders-cancel-claude-20kem7` and opened **https://github.com/SAPNA-SHAMS/ts-api-harness/pull/1**.
+See [the report](../reports/20261005T075109-orders-cancel-claude-jit-20kem7.json): verdict GREEN, standards 100%, 91.6% token reduction.

@@ -16,8 +16,8 @@ branch. The model never commits.
 > validates the Anthropic Messages and OpenAI Chat Completions wire formats, with a scripted
 > stand-in choosing the tool calls. The harness, gates, checks, drivers' translation and token
 > accounting are exercised for real. Live model behaviour is **UNPROVEN** until run with keys.
-> There is no git remote, so push and pull request are **UNPROVEN**; the ship step committed to
-> local feature branches and exported patches.
+> The ship step pushed a feature branch and opened
+> [PR #1](https://github.com/SAPNA-SHAMS/ts-api-harness/pull/1) itself, after every gate was green.
 
 ## Setup
 

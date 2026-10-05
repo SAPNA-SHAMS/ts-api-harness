@@ -118,8 +118,9 @@ committed.
   wire formats, with a scripted stand-in deciding the tool calls. Live model behaviour, live
   token counts and live turn counts are UNPROVEN until `npm run evidence -- --live` is run with
   keys.
-- No `origin` remote exists, so push and pull request are UNPROVEN. Shipping stopped at a local
-  feature-branch commit plus `reports/<run>.patch`.
+- Push and pull request are proven once: the ship step opened
+  [PR #1](https://github.com/SAPNA-SHAMS/ts-api-harness/pull/1). The earlier evidence runs predate
+  the remote and stopped at local feature-branch commits plus `reports/<run>.patch`.
 - `contract-drift` reports UNPROVEN when an API has neither a snapshot nor a task to compare
   against.
 - A test file that executes no tests is never green. A rule that crashes, or a plugin that fails

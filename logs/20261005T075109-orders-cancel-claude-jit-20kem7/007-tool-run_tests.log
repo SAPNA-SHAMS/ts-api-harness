@@ -1,0 +1,68 @@
+$ node --test test/orders-cancel.test.ts
+✖ DELETE /v1/orders/:id cancels a pending order (204) and it is gone (17.7655ms)
+✖ DELETE /v1/orders/:id on an unknown order is 404 problem+json (3.088291ms)
+✖ DELETE /v1/orders/:id on a shipped order is 409 problem+json (6.362667ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 0
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 151.247625
+
+✖ failing tests:
+
+test at test/orders-cancel.test.ts:11:1
+✖ DELETE /v1/orders/:id cancels a pending order (204) and it is gone (17.7655ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  405 !== 204
+  
+      at TestContext.<anonymous> (file:///Users/sapnashams/Documents/Harness%20Assignment/runs/20261005T075109-orders-cancel-claude-jit-20kem7/workspace/test/orders-cancel.test.ts:15:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 405,
+    expected: 204,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test/orders-cancel.test.ts:20:1
+✖ DELETE /v1/orders/:id on an unknown order is 404 problem+json (3.088291ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  405 !== 404
+  
+      at TestContext.<anonymous> (file:///Users/sapnashams/Documents/Harness%20Assignment/runs/20261005T075109-orders-cancel-claude-jit-20kem7/workspace/test/orders-cancel.test.ts:22:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 405,
+    expected: 404,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test/orders-cancel.test.ts:26:1
+✖ DELETE /v1/orders/:id on a shipped order is 409 problem+json (6.362667ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  405 !== 409
+  
+      at TestContext.<anonymous> (file:///Users/sapnashams/Documents/Harness%20Assignment/runs/20261005T075109-orders-cancel-claude-jit-20kem7/workspace/test/orders-cancel.test.ts:31:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 405,
+    expected: 409,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,166 @@
+{
+  "runId": "20261005T075109-orders-cancel-claude-jit-20kem7",
+  "task": "orders-cancel",
+  "driver": "claude",
+  "model": "scripted-replay (no live model)",
+  "mode": "jit",
+  "contextFetchers": true,
+  "compaction": true,
+  "estimator": "ceil(chars/4) over the serialized request (system + messages + tool specs), applied identically to both columns",
+  "baseline": "same conversation rendered with context fetchers and compaction disabled: standards, references and every workspace file front-loaded; raw tool output; no compaction",
+  "turns": [
+    {
+      "turn": 1,
+      "actualInputTokens": 651,
+      "actualInputTokensEstimated": 636,
+      "baselineInputTokensEstimated": 8672,
+      "outputTokens": 23,
+      "tools": [
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 2,
+      "actualInputTokens": 870,
+      "actualInputTokensEstimated": 851,
+      "baselineInputTokensEstimated": 8942,
+      "outputTokens": 24,
+      "tools": [
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 3,
+      "actualInputTokens": 844,
+      "actualInputTokensEstimated": 825,
+      "baselineInputTokensEstimated": 9152,
+      "outputTokens": 29,
+      "tools": [
+        "read_file"
+      ]
+    },
+    {
+      "turn": 4,
+      "actualInputTokens": 907,
+      "actualInputTokensEstimated": 888,
+      "baselineInputTokensEstimated": 9574,
+      "outputTokens": 29,
+      "tools": [
+        "read_file"
+      ]
+    },
+    {
+      "turn": 5,
+      "actualInputTokens": 862,
+      "actualInputTokensEstimated": 843,
+      "baselineInputTokensEstimated": 10009,
+      "outputTokens": 37,
+      "tools": [
+        "edit_file"
+      ]
+    },
+    {
+      "turn": 6,
+      "actualInputTokens": 828,
+      "actualInputTokensEstimated": 809,
+      "baselineInputTokensEstimated": 10104,
+      "outputTokens": 51,
+      "tools": [
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 7,
+      "actualInputTokens": 882,
+      "actualInputTokensEstimated": 863,
+      "baselineInputTokensEstimated": 10213,
+      "outputTokens": 426,
+      "tools": [
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 8,
+      "actualInputTokens": 1272,
+      "actualInputTokensEstimated": 1253,
+      "baselineInputTokensEstimated": 10675,
+      "outputTokens": 26,
+      "tools": [
+        "run_tests"
+      ]
+    },
+    {
+      "turn": 9,
+      "actualInputTokens": 957,
+      "actualInputTokensEstimated": 939,
+      "baselineInputTokensEstimated": 11423,
+      "outputTokens": 121,
+      "tools": [
+        "edit_file"
+      ]
+    },
+    {
+      "turn": 10,
+      "actualInputTokens": 930,
+      "actualInputTokensEstimated": 911,
+      "baselineInputTokensEstimated": 11580,
+      "outputTokens": 152,
+      "tools": [
+        "edit_file"
+      ]
+    },
+    {
+      "turn": 11,
+      "actualInputTokens": 959,
+      "actualInputTokensEstimated": 940,
+      "baselineInputTokensEstimated": 11769,
+      "outputTokens": 17,
+      "tools": [
+        "run_tests"
+      ]
+    },
+    {
+      "turn": 12,
+      "actualInputTokens": 970,
+      "actualInputTokensEstimated": 951,
+      "baselineInputTokensEstimated": 12047,
+      "outputTokens": 24,
+      "tools": [
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 13,
+      "actualInputTokens": 979,
+      "actualInputTokensEstimated": 960,
+      "baselineInputTokensEstimated": 12776,
+      "outputTokens": 25,
+      "tools": [
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 14,
+      "actualInputTokens": 1004,
+      "actualInputTokensEstimated": 985,
+      "baselineInputTokensEstimated": 12874,
+      "outputTokens": 25,
+      "tools": [
+        "finish"
+      ]
+    }
+  ],
+  "totals": {
+    "turns": 14,
+    "actualInputTokens": 12915,
+    "actualInputTokensEstimated": 12654,
+    "baselineInputTokensEstimated": 149810,
+    "outputTokens": 1009
+  },
+  "reductionPercent": 91.6,
+  "systemPromptTokens": {
+    "jit": 138,
+    "baseline": 7581
+  },
+  "verdict": "green"
+}

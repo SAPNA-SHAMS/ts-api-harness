@@ -1,0 +1,10 @@
+
+verdict    GREEN  (all gates green)
+gate       PASS     tests: 8 tests green in 1 files
+gate       PASS     observed-red: 4 source files each unlocked by an observed-red test
+gate       PASS     standards: 100% (6/6 rules)
+hooks      17 pass, 1 blocked, 1 recorded  {"observed-red":1}
+tokens     91% fewer input tokens than baseline → tokens/20261005T073230-users-api-openai-jit-7zo6o5.json
+ship       skipped; push skipped; PR not opened (the shipped tree is identical to HEAD (generated/users-api already contains this result): nothing to commit)
+report     reports/20261005T073230-users-api-openai-jit-7zo6o5.json
+logs       logs/20261005T073230-users-api-openai-jit-7zo6o5
