@@ -74,6 +74,11 @@ export async function ship(opts: {
     steps.push(`standards re-checked on the shipped tree: ${recheck.verdict.percent}%`);
 
     if (!git(['add', '--', outputDir(opts.task)], wt).ok) return { ...base, status: 'unproven', branch, reason: 'git add failed' };
+    if (git(['diff', '--cached', '--quiet'], wt).ok) {
+      git(['worktree', 'remove', '--force', wt], REPO_ROOT);
+      git(['branch', '-D', branch], REPO_ROOT);
+      return { ...base, status: 'skipped', reason: `the shipped tree is identical to HEAD (${outputDir(opts.task)} already contains this result): nothing to commit` };
+    }
     const message = [`harness: ${opts.task.name} (${opts.task.mode})`, '', `run ${opts.runId}`, ...opts.gateSummary.map((g) => `- ${g}`)].join('\n');
     const identity = git(['config', 'user.email'], wt).ok ? [] : ['-c', 'user.name=ts-api-harness', '-c', 'user.email=harness@localhost'];
     const commit = git([...identity, 'commit', '-q', '-m', message], wt);
