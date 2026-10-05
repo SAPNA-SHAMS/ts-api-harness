@@ -1,0 +1,18 @@
+{
+  "name": "orders-cancel",
+  "mode": "brownfield",
+  "description": "Add order cancellation to the existing orders API without changing existing behaviour.",
+  "apiVersion": "v1",
+  "repo": "examples/orders-api",
+  "resource": { "name": "orders" },
+  "change": {
+    "summary": "DELETE /v1/orders/:id cancels a pending order and returns 204. An unknown id returns 404. An order that has already shipped cannot be cancelled and returns 409.",
+    "adds": ["delete"]
+  },
+  "acceptance": [
+    "DELETE on a pending order returns 204 and a later GET returns 404",
+    "DELETE on an unknown order returns 404 problem+json",
+    "DELETE on a shipped order returns 409 problem+json",
+    "every existing orders test still passes"
+  ]
+}

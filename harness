@@ -1,0 +1,4 @@
+#!/bin/sh
+# One-command entry point: ./harness <command> [...flags]
+DIR="$(cd "$(dirname "$0")" && pwd)"
+exec node "$DIR/src/core/cli.ts" "$@"

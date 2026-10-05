@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/v1/orders",
+      "status": 200,
+      "errors": [
+        422
+      ],
+      "body": null,
+      "response": [
+        "data",
+        "nextCursor"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/orders/:id",
+      "status": 200,
+      "errors": [
+        404,
+        422
+      ],
+      "body": null,
+      "response": [
+        "createdAt",
+        "id",
+        "item",
+        "quantity",
+        "status",
+        "updatedAt"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/orders/:id",
+      "status": 200,
+      "errors": [
+        404,
+        409,
+        422
+      ],
+      "body": [
+        {
+          "name": "status",
+          "optional": true
+        },
+        {
+          "name": "quantity",
+          "optional": true
+        }
+      ],
+      "response": [
+        "createdAt",
+        "id",
+        "item",
+        "quantity",
+        "status",
+        "updatedAt"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/orders",
+      "status": 201,
+      "errors": [
+        409,
+        422
+      ],
+      "body": [
+        {
+          "name": "item",
+          "optional": false
+        },
+        {
+          "name": "quantity",
+          "optional": false
+        }
+      ],
+      "response": [
+        "createdAt",
+        "id",
+        "item",
+        "quantity",
+        "status",
+        "updatedAt"
+      ]
+    }
+  ]
+}

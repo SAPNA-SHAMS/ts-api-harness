@@ -1,0 +1,8 @@
+{
+  "maxTurns": 40,
+  "protectedBranches": ["main", "master", "develop", "release/*", "production"],
+  "branchPrefix": "harness/",
+  "compaction": { "keepRecentToolResults": 1, "elideArgsOverChars": 200 },
+  "readFileMaxLines": 120,
+  "disabledPlugins": []
+}

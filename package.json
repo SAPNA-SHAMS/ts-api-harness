@@ -1,0 +1,25 @@
+{
+  "name": "ts-api-harness",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A model-agnostic harness that governs TypeScript REST API work",
+  "bin": { "harness": "./harness" },
+  "engines": { "node": ">=22.18" },
+  "scripts": {
+    "setup": "npm install && chmod +x ./harness",
+    "harness": "node src/core/cli.ts",
+    "test": "node --test --test-concurrency=1 'test/*.test.ts'",
+    "lint": "tsc -p tsconfig.json && node scripts/lint-agnostic.ts",
+    "typecheck": "tsc -p tsconfig.json",
+    "evidence": "node scripts/evidence.ts",
+    "grader-sim": "node scripts/grader-sim.ts"
+  },
+  "dependencies": {
+    "typescript": "5.9.3",
+    "zod": "4.1.12"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.1"
+  }
+}
