@@ -140,7 +140,7 @@ export async function runTask(opts: RunOptions): Promise<RunReport> {
   for (const t of coreTools({ task, state, logDir, readFileMaxLines: config.readFileMaxLines, nextLogPath })) tools.set(t.name, t);
   for (const [name, t] of reg.tools) if (!tools.has(name)) tools.set(name, t);
   const toolSpecs: ToolSpec[] = [...tools.values()].map((t) => ({ name: t.name, description: t.description, parameters: t.parameters }));
-  const jitTools = jitToolSpecs(toolSpecs);
+  const jitTools = jitToolSpecs(toolSpecs, task.mode);
 
   const systemJit = jitSystem();
   const systemBase = baselineSystem(initialFiles.map((rel) => ({ rel, text: initialText.get(rel) ?? '' })));

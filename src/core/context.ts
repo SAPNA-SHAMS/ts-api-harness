@@ -17,7 +17,7 @@ Loop: read the task, write a failing test in test/, run_tests (the harness must 
 
 export function jitSystem(): string {
   return `${PREAMBLE}
-Context is just in time: fetch the task, a file slice or a conventions topic only when the next step needs it. Output is compact; full logs are on disk at the given path.`;
+Fetch context just in time (task, file slice, conventions topic). Output is compact; full logs are on disk at the given path.`;
 }
 
 export function jitKickoff(task: Task): string {
@@ -95,8 +95,14 @@ export function renderJit(history: HistItem[], keepRecent: number, elideOver: nu
   return [{ role: 'user', text: opening }, ...recent];
 }
 
-/** Tools every step needs ship with full schemas; the rest are listed once and called through use_tool. */
-export const ALWAYS_LOADED = ['read_file', 'write_file', 'edit_file', 'run_tests', 'finish'];
+/**
+ * Tools every step needs ship with full schemas; the rest are listed once and called through use_tool.
+ * Greenfield work mostly writes whole files, brownfield work mostly edits them.
+ */
+export const ALWAYS_LOADED: Record<Task['mode'], string[]> = {
+  greenfield: ['read_file', 'write_file', 'run_tests', 'finish'],
+  brownfield: ['read_file', 'edit_file', 'run_tests', 'finish'],
+};
 export const DISPATCH_TOOL = 'use_tool';
 
 function signature(t: ToolSpec): string {
@@ -106,9 +112,10 @@ function signature(t: ToolSpec): string {
 }
 
 /** JIT tool schemas: full specs for the always-loaded set plus one dispatcher carrying a one-line catalog. */
-export function jitToolSpecs(all: ToolSpec[]): ToolSpec[] {
-  const loaded = all.filter((t) => ALWAYS_LOADED.includes(t.name));
-  const deferred = all.filter((t) => !ALWAYS_LOADED.includes(t.name));
+export function jitToolSpecs(all: ToolSpec[], mode: Task['mode']): ToolSpec[] {
+  const always = ALWAYS_LOADED[mode];
+  const loaded = all.filter((t) => always.includes(t.name));
+  const deferred = all.filter((t) => !always.includes(t.name));
   if (deferred.length === 0) return loaded;
   return [
     ...loaded,
