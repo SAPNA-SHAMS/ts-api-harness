@@ -49,5 +49,18 @@ export function orderRoutes(store: OrderStore): Route[] {
       response: Order,
       handler: async ({ params, body }) => store.update(params.id, body),
     }),
+    defineRoute({
+      method: 'DELETE',
+      path: '/v1/orders/:id',
+      status: 204,
+      errors: [404, 409, 422],
+      params: OrderIdParams,
+      query: NoParams,
+      body: NoBody,
+      response: NoBody,
+      handler: async ({ params }) => {
+        store.remove(params.id);
+      },
+    }),
   ];
 }
