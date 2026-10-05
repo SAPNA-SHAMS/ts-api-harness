@@ -23,6 +23,14 @@ export class OrderStore {
     return order;
   }
 
+  remove(id: string): void {
+    const order = this.get(id);
+    if (order.status === 'shipped') {
+      throw problem(409, 'order-shipped', 'Order already shipped', `Order '${id}' has shipped and cannot be cancelled`);
+    }
+    this.#orders.delete(id);
+  }
+
   update(id: string, patch: OrderUpdate): Order {
     const current = this.get(id);
     if (current.status === 'shipped' && patch.quantity !== undefined) {
