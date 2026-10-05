@@ -5,6 +5,8 @@ import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
 
 export const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
+/** Where logs/, tokens/ and reports/ are written. Tests point this at a scratch directory. */
+export const OUT_ROOT = process.env['HARNESS_OUT_DIR'] !== undefined && process.env['HARNESS_OUT_DIR'] !== '' ? resolve(process.env['HARNESS_OUT_DIR']) : REPO_ROOT;
 
 const ConfigSchema = z.object({
   maxTurns: z.number().int().min(1).default(40),

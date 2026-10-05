@@ -43,8 +43,8 @@ export async function offlineRun(args: string[], opts: { quiet?: boolean } = {})
     provider = await startFakeProvider(planFor(task));
     const actual = await runOnce(rest);
     requests += provider.requests.length;
-    const baseTokens = /tokens\s+.*→ (tokens\/\S+\.json)/.exec(base.output)?.[1];
-    const actualTokens = /tokens\s+.*→ (tokens\/\S+\.json)/.exec(actual.output)?.[1];
+    const baseTokens = /tokens\s+.*→ (\S*tokens\/\S+\.json)/.exec(base.output)?.[1];
+    const actualTokens = /tokens\s+.*→ (\S*tokens\/\S+\.json)/.exec(actual.output)?.[1];
     if (baseTokens !== undefined && actualTokens !== undefined) {
       const link = spawn(process.execPath, [join(REPO_ROOT, 'scripts/link-baseline.ts'), actualTokens, baseTokens], { cwd: REPO_ROOT, stdio: opts.quiet === true ? 'ignore' : 'inherit' });
       await new Promise((r) => link.on('close', r));

@@ -11,10 +11,13 @@ import { loadTask } from '../src/core/task.ts';
 import { loadConfig, REPO_ROOT, sha256 } from '../src/core/util.ts';
 import type { RunReport } from '../src/core/engine.ts';
 
+// Test runs write their evidence to a scratch directory, not the submission's logs/tokens/reports.
+process.env['HARNESS_OUT_DIR'] = join(REPO_ROOT, 'runs', 'test-out');
+
 type Tokens = { reductionPercent: number; turns: { actualInputTokensEstimated: number; baselineInputTokensEstimated: number }[]; reductionVsMeasuredBaselinePercent?: number; contextFetchers: boolean; compaction: boolean };
 
 const reportFrom = (output: string, nth = -1): RunReport => {
-  const paths = [...output.matchAll(/report\s+(reports\/\S+\.json)/g)].map((m) => m[1] ?? '');
+  const paths = [...output.matchAll(/report\s+(\S*reports\/\S+\.json)/g)].map((m) => m[1] ?? '');
   const p = paths.at(nth);
   assert.ok(p !== undefined && p.length > 0, `no report path in output:\n${output.slice(-2000)}`);
   return JSON.parse(readFileSync(join(REPO_ROOT, p), 'utf8')) as RunReport;

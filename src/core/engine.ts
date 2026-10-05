@@ -11,7 +11,7 @@ import type { HookDecision, ModelRequest, ToolContext, ToolDef, ToolOutput, Tool
 import { ship, type ShipResult } from './ship.ts';
 import { loadTask, outputDir } from './task.ts';
 import { coreTools } from './tools.ts';
-import { ensureDir, estimateTokens, hashFiles, listFilesRec, loadConfig, REPO_ROOT, sha256, writeText } from './util.ts';
+import { ensureDir, estimateTokens, hashFiles, listFilesRec, loadConfig, OUT_ROOT, REPO_ROOT, sha256, writeText } from './util.ts';
 
 export type RunOptions = {
   taskPath: string;
@@ -88,10 +88,10 @@ export async function runTask(opts: RunOptions): Promise<RunReport> {
   const driver = driverDef.create(opts.env ?? process.env);
 
   const runId = newRunId(task.name, opts.driverId, opts.mode);
-  const logDir = join(REPO_ROOT, 'logs', runId);
+  const logDir = join(OUT_ROOT, 'logs', runId);
   const workspace = join(REPO_ROOT, 'runs', runId, 'workspace');
-  const tokensPath = join(REPO_ROOT, 'tokens', `${runId}.json`);
-  const reportPath = join(REPO_ROOT, 'reports', `${runId}.json`);
+  const tokensPath = join(OUT_ROOT, 'tokens', `${runId}.json`);
+  const reportPath = join(OUT_ROOT, 'reports', `${runId}.json`);
   ensureDir(logDir);
 
   // Workspace: greenfield starts from the harness scaffold; brownfield from a copy of the repo.

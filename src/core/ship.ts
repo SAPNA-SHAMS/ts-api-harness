@@ -9,7 +9,7 @@ import { runStandards } from './checker.ts';
 import { extractContract, SNAPSHOT_FILE } from './contract.ts';
 import type { TaskInfo } from './sdk.ts';
 import { outputDir, type Task } from './task.ts';
-import { ensureDir, listFilesRec, matchesAny, REPO_ROOT, writeText, type HarnessConfig } from './util.ts';
+import { ensureDir, listFilesRec, matchesAny, OUT_ROOT, REPO_ROOT, writeText, type HarnessConfig } from './util.ts';
 
 export type ShipResult = {
   status: 'committed' | 'pushed' | 'refused' | 'unproven' | 'skipped';
@@ -82,7 +82,7 @@ export async function ship(opts: {
     steps.push(`committed ${sha.slice(0, 10)} on ${branch}`);
     const patch = git(['format-patch', '-1', '--stdout', sha], wt);
     if (patch.ok) {
-      writeText(join(REPO_ROOT, 'reports', `${opts.runId}.patch`), `${patch.out}\n`);
+      writeText(join(OUT_ROOT, 'reports', `${opts.runId}.patch`), `${patch.out}\n`);
       steps.push(`patch written to reports/${opts.runId}.patch`);
     }
 
