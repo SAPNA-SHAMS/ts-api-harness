@@ -59,14 +59,14 @@ fetchers and compaction disabled**. That last one is the shadow baseline. Both e
 separately in baseline mode on the same driver and attaches that run's provider-reported tokens
 (`measuredBaseline`).
 
-users-api on the Claude driver, 13 turns (per-turn table: `harness tokens --file tokens/…-users-api-claude-jit-h076ul.json`):
+users-api on the Claude driver, 13 turns (per-turn table: `harness tokens --file tokens/…-users-api-claude-jit-4f0zp1.json`):
 
 | | turn 1 | turn 7 | turn 13 | total |
 |---|---|---|---|---|
 | baseline (shadow) | 6,429 | 9,494 | 12,157 | 121,806 |
 | actual (JIT) | 632 | 807 | 917 | 10,916 |
 
-Measured baseline run: 122,190 vs 11,156 provider-reported input tokens, a **90.9%** reduction.
+Measured baseline run: 122,188 vs 11,156 provider-reported input tokens, a **90.9%** reduction.
 The other three runs measured 90.6%, 91.4% and 91.1%.
 
 What earned it:

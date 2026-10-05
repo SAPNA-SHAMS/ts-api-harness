@@ -1,0 +1,36 @@
+
+== 1. register a new tool (openapi_diff)
+$ git diff --stat
+plugins/tools/openapi-diff.ts | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+core (src/core/) touched: no
+$ harness plugins | grep openapi
+tool       openapi_diff                 plugins/tools/openapi-diff.ts
+$ harness run … (next run)
+[harness] tools: get_task, get_scope, list_files, read_file, write_file, edit_file, run_tests, run_checks, finish, contract_diff, get_reference, openapi_diff, workspace_diff
+result: PASS (live, core untouched)
+
+== 2. add a custom ORM validator (drizzle-users-select-columns)
+$ git diff --stat
+plugins/validators/drizzle-users-select-columns.ts | 25 ++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+core (src/core/) touched: no
+$ harness check --api <fixture with db.select().from(users)>
+drizzle-users-select-columns  FAIL     src/orders/users-query.ts:3  select() on users must name its columns
+drizzle-users-select-columns  FAIL     0/1 queries
+result: PASS (live, core untouched)
+
+== 3. add a linter rule via the registry manifest (no-console)
+$ git diff --stat
+plugins/custom/no-console.ts | 19 +++++++++++++++++++
+ plugins/registry.json        |  5 +++++
+ 2 files changed, 24 insertions(+)
+core (src/core/) touched: no
+$ harness check --api <fixture>
+no-console                    FAIL     src/orders/users-query.ts:4  console.log in API source
+no-console                    FAIL     9/10 files
+$ harness check --api examples/orders-api | grep no-console
+no-console                    pass     9/9 files
+result: PASS (live, core untouched)
+
+grader-sim: PASS (core directory: src/core/)

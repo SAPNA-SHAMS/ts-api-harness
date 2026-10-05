@@ -1,0 +1,10 @@
+
+verdict    GREEN  (all gates green)
+gate       PASS     tests: 8 tests green in 1 files
+gate       PASS     observed-red: 4 source files each unlocked by an observed-red test
+gate       PASS     standards: 100% (6/6 rules)
+hooks      17 pass, 1 blocked, 1 recorded  {"observed-red":1}
+tokens     0% fewer input tokens than baseline → tokens/20261005T072822-users-api-openai-baseline-5lpwra.json
+ship       not requested
+report     reports/20261005T072822-users-api-openai-baseline-5lpwra.json
+logs       logs/20261005T072822-users-api-openai-baseline-5lpwra

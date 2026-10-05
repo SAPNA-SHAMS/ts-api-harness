@@ -1,0 +1,17 @@
+$ node --test test/users.test.ts
+✔ POST /v1/users creates (201) and replays the same Idempotency-Key (19.692958ms)
+✔ POST /v1/users rejects an invalid body with 422 problem+json (1.703084ms)
+✔ POST /v1/users without an Idempotency-Key is 422 (2.517167ms)
+✔ POST /v1/users with a duplicate email is 409 problem+json (4.549209ms)
+✔ GET /v1/users/:id returns the item, or 404 problem+json (8.240084ms)
+✔ GET /v1/users paginates with an opaque cursor (9.633667ms)
+✔ PATCH /v1/users/:id updates (200), 404 when missing, 422 when invalid (7.262ms)
+✔ DELETE /v1/users/:id returns 204, then 404 (5.414208ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 167.513916

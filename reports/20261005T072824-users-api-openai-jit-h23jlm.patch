@@ -1,0 +1,836 @@
+From 250be254296abc291b0305312004cc13416d2d07 Mon Sep 17 00:00:00 2001
+From: SAPNA-SHAMS <sapna.shams@softwarefinder.com>
+Date: Mon, 5 Oct 2026 12:28:27 +0500
+Subject: [PATCH] harness: users-api (greenfield)
+
+run 20261005T072824-users-api-openai-jit-h23jlm
+- tests: pass (8 tests green in 1 files)
+- observed-red: pass (4 source files each unlocked by an observed-red test)
+- standards: pass (100% (6/6 rules))
+---
+ generated/users-api/contract.snapshot.json | 110 ++++++++++++++
+ generated/users-api/package.json           |  12 ++
+ generated/users-api/src/app.ts             |   8 +
+ generated/users-api/src/lib/http.ts        | 164 +++++++++++++++++++++
+ generated/users-api/src/lib/idempotency.ts |  29 ++++
+ generated/users-api/src/lib/pagination.ts  |  39 +++++
+ generated/users-api/src/lib/problem.ts     |  46 ++++++
+ generated/users-api/src/server.ts          |   7 +
+ generated/users-api/src/users/routes.ts    |  66 +++++++++
+ generated/users-api/src/users/schema.ts    |  34 +++++
+ generated/users-api/src/users/store.ts     |  54 +++++++
+ generated/users-api/test/helpers.ts        |  25 ++++
+ generated/users-api/test/users.test.ts     | 100 +++++++++++++
+ generated/users-api/tsconfig.json          |  16 ++
+ 14 files changed, 710 insertions(+)
+ create mode 100644 generated/users-api/contract.snapshot.json
+ create mode 100644 generated/users-api/package.json
+ create mode 100644 generated/users-api/src/app.ts
+ create mode 100644 generated/users-api/src/lib/http.ts
+ create mode 100644 generated/users-api/src/lib/idempotency.ts
+ create mode 100644 generated/users-api/src/lib/pagination.ts
+ create mode 100644 generated/users-api/src/lib/problem.ts
+ create mode 100644 generated/users-api/src/server.ts
+ create mode 100644 generated/users-api/src/users/routes.ts
+ create mode 100644 generated/users-api/src/users/schema.ts
+ create mode 100644 generated/users-api/src/users/store.ts
+ create mode 100644 generated/users-api/test/helpers.ts
+ create mode 100644 generated/users-api/test/users.test.ts
+ create mode 100644 generated/users-api/tsconfig.json
+
+diff --git a/generated/users-api/contract.snapshot.json b/generated/users-api/contract.snapshot.json
+new file mode 100644
+index 0000000..407088a
+--- /dev/null
++++ b/generated/users-api/contract.snapshot.json
+@@ -0,0 +1,110 @@
++{
++  "version": 1,
++  "routes": [
++    {
++      "method": "DELETE",
++      "path": "/v1/users/:id",
++      "status": 204,
++      "errors": [
++        404,
++        422
++      ],
++      "body": null,
++      "response": null
++    },
++    {
++      "method": "GET",
++      "path": "/v1/users",
++      "status": 200,
++      "errors": [
++        422
++      ],
++      "body": null,
++      "response": [
++        "data",
++        "nextCursor"
++      ]
++    },
++    {
++      "method": "GET",
++      "path": "/v1/users/:id",
++      "status": 200,
++      "errors": [
++        404,
++        422
++      ],
++      "body": null,
++      "response": [
++        "age",
++        "createdAt",
++        "email",
++        "id",
++        "name",
++        "updatedAt"
++      ]
++    },
++    {
++      "method": "PATCH",
++      "path": "/v1/users/:id",
++      "status": 200,
++      "errors": [
++        404,
++        409,
++        422
++      ],
++      "body": [
++        {
++          "name": "name",
++          "optional": true
++        },
++        {
++          "name": "email",
++          "optional": true
++        },
++        {
++          "name": "age",
++          "optional": true
++        }
++      ],
++      "response": [
++        "age",
++        "createdAt",
++        "email",
++        "id",
++        "name",
++        "updatedAt"
++      ]
++    },
++    {
++      "method": "POST",
++      "path": "/v1/users",
++      "status": 201,
++      "errors": [
++        409,
++        422
++      ],
++      "body": [
++        {
++          "name": "name",
++          "optional": false
++        },
++        {
++          "name": "email",
++          "optional": false
++        },
++        {
++          "name": "age",
++          "optional": true
++        }
++      ],
++      "response": [
++        "age",
++        "createdAt",
++        "email",
++        "id",
++        "name",
++        "updatedAt"
++      ]
++    }
++  ]
++}
+diff --git a/generated/users-api/package.json b/generated/users-api/package.json
+new file mode 100644
+index 0000000..17cdd1b
+--- /dev/null
++++ b/generated/users-api/package.json
+@@ -0,0 +1,12 @@
++{
++  "name": "governed-api",
++  "private": true,
++  "type": "module",
++  "scripts": {
++    "start": "node src/server.ts",
++    "test": "node --test 'test/*.test.ts'",
++    "typecheck": "tsc -p tsconfig.json"
++  },
++  "dependencies": { "zod": "4.1.12" },
++  "devDependencies": { "typescript": "5.9.3", "@types/node": "24.10.1" }
++}
+diff --git a/generated/users-api/src/app.ts b/generated/users-api/src/app.ts
+new file mode 100644
+index 0000000..f14d370
+--- /dev/null
++++ b/generated/users-api/src/app.ts
+@@ -0,0 +1,8 @@
++import type { Server } from 'node:http';
++import { createApp } from './lib/http.ts';
++import { userRoutes } from './users/routes.ts';
++import { UserStore } from './users/store.ts';
++
++export function buildApp(): Server {
++  return createApp([...userRoutes(new UserStore())]);
++}
+diff --git a/generated/users-api/src/lib/http.ts b/generated/users-api/src/lib/http.ts
+new file mode 100644
+index 0000000..a5dc4ce
+--- /dev/null
++++ b/generated/users-api/src/lib/http.ts
+@@ -0,0 +1,164 @@
++// Harness-owned. Route definitions parse params, query and body with Zod before the handler
++// runs, and parse the handler's return value with the response schema before it is sent.
++import { createServer, type IncomingHttpHeaders, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
++import { z } from 'zod';
++import { fingerprint, IdempotencyKey, IdempotencyStore } from './idempotency.ts';
++import { HttpProblem, problem, sendProblem } from './problem.ts';
++
++export type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
++
++/** Use for routes that take no body (GET, DELETE) and for 204 responses. */
++export const NoBody = z.undefined();
++/** Use for routes with no path parameters or no query parameters. */
++export const NoParams = z.object({}).strict();
++
++type RouteSpec<P extends z.ZodType, Q extends z.ZodType, B extends z.ZodType, R extends z.ZodType> = {
++  method: Method;
++  path: string;
++  status: 200 | 201 | 204;
++  idempotent?: boolean;
++  errors: readonly number[];
++  params: P;
++  query: Q;
++  body: B;
++  response: R;
++  handler: (input: { params: z.output<P>; query: z.output<Q>; body: z.output<B>; headers: IncomingHttpHeaders }) => HandlerResult<R>;
++};
++
++/** 204 handlers (response NoBody) return nothing; every other handler returns the response schema's input. */
++type HandlerResult<R extends z.ZodType> = z.input<R> extends undefined ? Promise<void> : Promise<z.input<R>>;
++
++export type RawInput = { params: Record<string, string>; query: Record<string, string>; body: unknown; headers: IncomingHttpHeaders };
++
++export type Route = {
++  method: Method;
++  path: string;
++  status: 200 | 201 | 204;
++  idempotent: boolean;
++  errors: readonly number[];
++  handle: (raw: RawInput) => Promise<unknown>;
++};
++
++function parseOr422<S extends z.ZodType>(schema: S, value: unknown, where: string): z.output<S> {
++  const parsed = schema.safeParse(value);
++  if (!parsed.success) {
++    const detail = parsed.error.issues.map((i) => `${i.path.length > 0 ? i.path.join('.') : where}: ${i.message}`).join('; ');
++    throw problem(422, 'validation', `Request ${where} failed validation`, detail);
++  }
++  return parsed.data;
++}
++
++export function defineRoute<P extends z.ZodType, Q extends z.ZodType, B extends z.ZodType, R extends z.ZodType>(
++  spec: RouteSpec<P, Q, B, R>,
++): Route {
++  return {
++    method: spec.method,
++    path: spec.path,
++    status: spec.status,
++    idempotent: spec.idempotent ?? false,
++    errors: spec.errors,
++    handle: async (raw) => {
++      const params = parseOr422(spec.params, raw.params, 'path');
++      const query = parseOr422(spec.query, raw.query, 'query');
++      const body = parseOr422(spec.body, raw.body, 'body');
++      const out = await spec.handler({ params, query, body, headers: raw.headers });
++      return spec.response.parse(out);
++    },
++  };
++}
++
++function matchPath(pattern: string, path: string): Record<string, string> | undefined {
++  const want = pattern.split('/').filter((s) => s.length > 0);
++  const got = path.split('/').filter((s) => s.length > 0);
++  if (want.length !== got.length) return undefined;
++  const params: Record<string, string> = {};
++  for (let i = 0; i < want.length; i++) {
++    const w = want[i];
++    const g = got[i];
++    if (w === undefined || g === undefined) return undefined;
++    if (w.startsWith(':')) params[w.slice(1)] = decodeURIComponent(g);
++    else if (w !== g) return undefined;
++  }
++  return params;
++}
++
++async function readBody(req: IncomingMessage): Promise<string> {
++  const chunks: Buffer[] = [];
++  let size = 0;
++  for await (const chunk of req) {
++    const buf = Buffer.isBuffer(chunk) ? chunk : Buffer.from(String(chunk));
++    size += buf.length;
++    if (size > 1_000_000) throw problem(413, 'payload-too-large', 'Payload too large', 'Request body exceeds 1 MB');
++    chunks.push(buf);
++  }
++  return Buffer.concat(chunks).toString('utf8');
++}
++
++function parseJson(text: string): unknown {
++  if (text.length === 0) return undefined;
++  try {
++    const value: unknown = JSON.parse(text);
++    return value;
++  } catch {
++    throw problem(422, 'malformed-json', 'Request body is not valid JSON', 'body: could not be parsed as JSON');
++  }
++}
++
++function sendJson(res: ServerResponse, status: number, body: string | undefined): void {
++  if (status === 204 || body === undefined) {
++    res.writeHead(status);
++    res.end();
++    return;
++  }
++  res.writeHead(status, { 'content-type': 'application/json' });
++  res.end(body);
++}
++
++async function dispatch(routes: readonly Route[], idem: IdempotencyStore, req: IncomingMessage, res: ServerResponse): Promise<void> {
++  const url = new URL(req.url ?? '/', 'http://localhost');
++  const method = req.method ?? 'GET';
++  let pathMatched = false;
++  for (const route of routes) {
++    const params = matchPath(route.path, url.pathname);
++    if (params === undefined) continue;
++    pathMatched = true;
++    if (route.method !== method) continue;
++
++    const text = await readBody(req);
++    const body = parseJson(text);
++    let key: string | undefined;
++    const scope = `${method} ${url.pathname}`;
++    const print = fingerprint(text);
++    if (route.idempotent) {
++      const header = req.headers['idempotency-key'];
++      const parsedKey = IdempotencyKey.safeParse(Array.isArray(header) ? header[0] : header);
++      if (!parsedKey.success) {
++        throw problem(422, 'idempotency-key-required', 'Idempotency-Key header required', 'Idempotency-Key: header must be 8-200 characters');
++      }
++      key = parsedKey.data;
++      const replay = idem.lookup(scope, key, print);
++      if (replay !== undefined) {
++        sendJson(res, replay.status, replay.body.length > 0 ? replay.body : undefined);
++        return;
++      }
++    }
++    const out = await route.handle({ params, query: Object.fromEntries(url.searchParams), body, headers: req.headers });
++    const payload = route.status === 204 ? undefined : JSON.stringify(out);
++    if (key !== undefined) idem.save(scope, key, { fingerprint: print, status: route.status, body: payload ?? '' });
++    sendJson(res, route.status, payload);
++    return;
++  }
++  if (pathMatched) throw problem(405, 'method-not-allowed', 'Method not allowed', `${method} is not supported on ${url.pathname}`);
++  throw problem(404, 'not-found', 'Resource not found', `No route for ${method} ${url.pathname}`);
++}
++
++export function createApp(routes: readonly Route[]): Server {
++  const idem = new IdempotencyStore();
++  return createServer((req, res) => {
++    const instance = new URL(req.url ?? '/', 'http://localhost').pathname;
++    dispatch(routes, idem, req, res).catch((err: unknown) => {
++      const p = err instanceof HttpProblem ? err : problem(500, 'internal', 'Internal server error', 'An unexpected error occurred');
++      sendProblem(res, p, instance);
++    });
++  });
++}
+diff --git a/generated/users-api/src/lib/idempotency.ts b/generated/users-api/src/lib/idempotency.ts
+new file mode 100644
+index 0000000..79f668d
+--- /dev/null
++++ b/generated/users-api/src/lib/idempotency.ts
+@@ -0,0 +1,29 @@
++// Harness-owned. Idempotency-Key handling for unsafe, retryable requests.
++import { createHash } from 'node:crypto';
++import { z } from 'zod';
++import { problem } from './problem.ts';
++
++export const IdempotencyKey = z.string().min(8).max(200);
++
++type StoredResponse = { fingerprint: string; status: number; body: string };
++
++export class IdempotencyStore {
++  readonly #entries = new Map<string, StoredResponse>();
++
++  lookup(scope: string, key: string, fingerprint: string): StoredResponse | undefined {
++    const hit = this.#entries.get(`${scope} ${key}`);
++    if (hit === undefined) return undefined;
++    if (hit.fingerprint !== fingerprint) {
++      throw problem(409, 'idempotency-conflict', 'Idempotency key reused', `Idempotency-Key '${key}' was already used with a different request`);
++    }
++    return hit;
++  }
++
++  save(scope: string, key: string, value: StoredResponse): void {
++    this.#entries.set(`${scope} ${key}`, value);
++  }
++}
++
++export function fingerprint(body: string): string {
++  return createHash('sha256').update(body).digest('hex');
++}
+diff --git a/generated/users-api/src/lib/pagination.ts b/generated/users-api/src/lib/pagination.ts
+new file mode 100644
+index 0000000..98ae094
+--- /dev/null
++++ b/generated/users-api/src/lib/pagination.ts
+@@ -0,0 +1,39 @@
++// Harness-owned. Opaque cursor pagination shared by every list route.
++import { z } from 'zod';
++import { problem } from './problem.ts';
++
++export const PageQuery = z.object({
++  cursor: z.string().min(1).optional(),
++  limit: z.coerce.number().int().min(1).max(100).default(20),
++});
++
++export function pageOf<T extends z.ZodType>(item: T) {
++  return z.object({ data: z.array(item), nextCursor: z.string().nullable() });
++}
++
++export function encodeCursor(id: string): string {
++  return Buffer.from(id, 'utf8').toString('base64url');
++}
++
++export function decodeCursor(cursor: string): string {
++  const id = Buffer.from(cursor, 'base64url').toString('utf8');
++  if (id.length === 0 || encodeCursor(id) !== cursor) {
++    throw problem(422, 'invalid-cursor', 'Invalid pagination cursor', `cursor: '${cursor}' is not a valid cursor`);
++  }
++  return id;
++}
++
++export function paginate<T extends { id: string }>(
++  items: readonly T[],
++  cursor: string | undefined,
++  limit: number,
++): { data: T[]; nextCursor: string | null } {
++  const sorted = [...items].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
++  const after = cursor === undefined ? undefined : decodeCursor(cursor);
++  const found = after === undefined ? 0 : sorted.findIndex((item) => item.id > after);
++  const from = found === -1 ? sorted.length : found;
++  const data = sorted.slice(from, from + limit);
++  const last = data[data.length - 1];
++  const hasMore = from + limit < sorted.length;
++  return { data, nextCursor: hasMore && last !== undefined ? encodeCursor(last.id) : null };
++}
+diff --git a/generated/users-api/src/lib/problem.ts b/generated/users-api/src/lib/problem.ts
+new file mode 100644
+index 0000000..2b40dcd
+--- /dev/null
++++ b/generated/users-api/src/lib/problem.ts
+@@ -0,0 +1,46 @@
++// Harness-owned. RFC 7807 problem details: the only shape a non-2xx response may take.
++import type { ServerResponse } from 'node:http';
++import { z } from 'zod';
++
++export const PROBLEM_BASE = 'https://api.sf/problems/';
++
++export const ProblemSchema = z.object({
++  type: z.url(),
++  title: z.string().min(1),
++  status: z.number().int().min(400).max(599),
++  detail: z.string(),
++  instance: z.string().min(1),
++});
++export type Problem = z.infer<typeof ProblemSchema>;
++
++export class HttpProblem extends Error {
++  readonly status: number;
++  readonly slug: string;
++  readonly title: string;
++  readonly detail: string;
++
++  constructor(status: number, slug: string, title: string, detail: string) {
++    super(`${status} ${title}: ${detail}`);
++    this.status = status;
++    this.slug = slug;
++    this.title = title;
++    this.detail = detail;
++  }
++}
++
++/** Build a problem to throw from a handler: `throw problem(404, 'not-found', 'User not found', detail)`. */
++export function problem(status: number, slug: string, title: string, detail: string): HttpProblem {
++  return new HttpProblem(status, slug, title, detail);
++}
++
++export function sendProblem(res: ServerResponse, p: HttpProblem, instance: string): void {
++  const body: Problem = ProblemSchema.parse({
++    type: `${PROBLEM_BASE}${p.slug}`,
++    title: p.title,
++    status: p.status,
++    detail: p.detail,
++    instance,
++  });
++  res.writeHead(p.status, { 'content-type': 'application/problem+json' });
++  res.end(JSON.stringify(body));
++}
+diff --git a/generated/users-api/src/server.ts b/generated/users-api/src/server.ts
+new file mode 100644
+index 0000000..5595cd9
+--- /dev/null
++++ b/generated/users-api/src/server.ts
+@@ -0,0 +1,7 @@
++// Harness-owned entry point.
++import { buildApp } from './app.ts';
++
++const port = Number(process.env['PORT'] ?? '3000');
++buildApp().listen(port, () => {
++  process.stdout.write(`listening on :${port}\n`);
++});
+diff --git a/generated/users-api/src/users/routes.ts b/generated/users-api/src/users/routes.ts
+new file mode 100644
+index 0000000..8874486
+--- /dev/null
++++ b/generated/users-api/src/users/routes.ts
+@@ -0,0 +1,66 @@
++import { defineRoute, NoBody, NoParams, type Route } from '../lib/http.ts';
++import { ListUsersQuery, User, UserCreate, UserIdParams, UserPage, UserUpdate } from './schema.ts';
++import type { UserStore } from './store.ts';
++
++export function userRoutes(store: UserStore): Route[] {
++  return [
++    defineRoute({
++      method: 'POST',
++      path: '/v1/users',
++      status: 201,
++      idempotent: true,
++      errors: [409, 422],
++      params: NoParams,
++      query: NoParams,
++      body: UserCreate,
++      response: User,
++      handler: async ({ body }) => store.create(body),
++    }),
++    defineRoute({
++      method: 'GET',
++      path: '/v1/users/:id',
++      status: 200,
++      errors: [404, 422],
++      params: UserIdParams,
++      query: NoParams,
++      body: NoBody,
++      response: User,
++      handler: async ({ params }) => store.get(params.id),
++    }),
++    defineRoute({
++      method: 'GET',
++      path: '/v1/users',
++      status: 200,
++      errors: [422],
++      params: NoParams,
++      query: ListUsersQuery,
++      body: NoBody,
++      response: UserPage,
++      handler: async ({ query }) => store.list(query.cursor, query.limit),
++    }),
++    defineRoute({
++      method: 'PATCH',
++      path: '/v1/users/:id',
++      status: 200,
++      errors: [404, 409, 422],
++      params: UserIdParams,
++      query: NoParams,
++      body: UserUpdate,
++      response: User,
++      handler: async ({ params, body }) => store.update(params.id, body),
++    }),
++    defineRoute({
++      method: 'DELETE',
++      path: '/v1/users/:id',
++      status: 204,
++      errors: [404, 422],
++      params: UserIdParams,
++      query: NoParams,
++      body: NoBody,
++      response: NoBody,
++      handler: async ({ params }) => {
++        store.remove(params.id);
++      },
++    }),
++  ];
++}
+diff --git a/generated/users-api/src/users/schema.ts b/generated/users-api/src/users/schema.ts
+new file mode 100644
+index 0000000..931c688
+--- /dev/null
++++ b/generated/users-api/src/users/schema.ts
+@@ -0,0 +1,34 @@
++import { z } from 'zod';
++import { PageQuery, pageOf } from '../lib/pagination.ts';
++
++export const User = z.object({
++  id: z.uuid(),
++  name: z.string().min(1).max(120),
++  email: z.email(),
++  age: z.number().int().min(0).max(150).optional(),
++  createdAt: z.iso.datetime(),
++  updatedAt: z.iso.datetime(),
++});
++export type User = z.infer<typeof User>;
++
++export const UserCreate = z
++  .object({
++    name: z.string().min(1).max(120),
++    email: z.email(),
++    age: z.number().int().min(0).max(150).optional(),
++  })
++  .strict();
++export type UserCreate = z.infer<typeof UserCreate>;
++
++export const UserUpdate = z
++  .object({
++    name: z.string().min(1).max(120).optional(),
++    email: z.email().optional(),
++    age: z.number().int().min(0).max(150).optional(),
++  })
++  .strict();
++export type UserUpdate = z.infer<typeof UserUpdate>;
++
++export const UserIdParams = z.object({ id: z.uuid() }).strict();
++export const ListUsersQuery = PageQuery;
++export const UserPage = pageOf(User);
+diff --git a/generated/users-api/src/users/store.ts b/generated/users-api/src/users/store.ts
+new file mode 100644
+index 0000000..54a4ac6
+--- /dev/null
++++ b/generated/users-api/src/users/store.ts
+@@ -0,0 +1,54 @@
++import { randomUUID } from 'node:crypto';
++import { paginate } from '../lib/pagination.ts';
++import { problem } from '../lib/problem.ts';
++import type { User, UserCreate, UserUpdate } from './schema.ts';
++
++export class UserStore {
++  readonly #items = new Map<string, User>();
++
++  list(cursor: string | undefined, limit: number): { data: User[]; nextCursor: string | null } {
++    return paginate([...this.#items.values()], cursor, limit);
++  }
++
++  get(id: string): User {
++    const item = this.#items.get(id);
++    if (item === undefined) throw problem(404, 'not-found', 'User not found', `No user with id '${id}'`);
++    return item;
++  }
++
++  create(input: UserCreate): User {
++    this.#assertUnique(input, undefined);
++    const now = new Date().toISOString();
++    const item: User = { id: randomUUID(), ...input, createdAt: now, updatedAt: now };
++    this.#items.set(item.id, item);
++    return item;
++  }
++
++  update(id: string, patch: UserUpdate): User {
++    const current = this.get(id);
++    this.#assertUnique(patch, id);
++    const next: User = {
++      ...current,
++      name: patch.name ?? current.name,
++      email: patch.email ?? current.email,
++      age: patch.age ?? current.age,
++      updatedAt: new Date().toISOString(),
++    };
++    this.#items.set(id, next);
++    return next;
++  }
++
++  remove(id: string): void {
++    this.get(id);
++    this.#items.delete(id);
++  }
++
++  #assertUnique(input: { email?: string | undefined }, selfId: string | undefined): void {
++    for (const existing of this.#items.values()) {
++      if (existing.id === selfId) continue;
++      if (input.email !== undefined && String(existing.email).toLowerCase() === String(input.email).toLowerCase()) {
++        throw problem(409, 'conflict', 'User already exists', `A user with email '${String(input.email)}' already exists`);
++      }
++    }
++  }
++}
+diff --git a/generated/users-api/test/helpers.ts b/generated/users-api/test/helpers.ts
+new file mode 100644
+index 0000000..bae4623
+--- /dev/null
++++ b/generated/users-api/test/helpers.ts
+@@ -0,0 +1,25 @@
++// Harness-owned test helpers: start the app on an ephemeral port and call it.
++import type { AddressInfo } from 'node:net';
++import type { Server } from 'node:http';
++import { buildApp } from '../src/app.ts';
++
++export async function start(): Promise<{ base: string; server: Server }> {
++  const server = buildApp();
++  await new Promise<void>((resolve) => server.listen(0, resolve));
++  const { port } = server.address() as AddressInfo;
++  return { base: `http://127.0.0.1:${port}`, server };
++}
++
++export async function call(base: string, method: string, path: string, body?: unknown, key?: string): Promise<{ status: number; type: string; json: unknown }> {
++  const headers: Record<string, string> = {};
++  if (body !== undefined) headers['content-type'] = 'application/json';
++  if (key !== undefined) headers['idempotency-key'] = key;
++  const res = await fetch(`${base}${path}`, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) });
++  const text = await res.text();
++  const json: unknown = text.length > 0 ? JSON.parse(text) : undefined;
++  return { status: res.status, type: res.headers.get('content-type') ?? '', json };
++}
++
++export function field(value: unknown, key: string): unknown {
++  return typeof value === 'object' && value !== null ? (value as Record<string, unknown>)[key] : undefined;
++}
+diff --git a/generated/users-api/test/users.test.ts b/generated/users-api/test/users.test.ts
+new file mode 100644
+index 0000000..e9ae264
+--- /dev/null
++++ b/generated/users-api/test/users.test.ts
+@@ -0,0 +1,100 @@
++import assert from 'node:assert/strict';
++import { after, before, test } from 'node:test';
++import type { Server } from 'node:http';
++import { call, field, start } from './helpers.ts';
++
++let base = '';
++let server: Server | undefined;
++before(async () => ({ base, server } = await start()));
++after(() => server?.close());
++
++const valid = (n: number): Record<string, unknown> => ({
++  name: `name-${n}`,
++  email: `user${n}@example.com`,
++  age: 0,
++});
++
++test('POST /v1/users creates (201) and replays the same Idempotency-Key', async () => {
++  const first = await call(base, 'POST', '/v1/users', valid(1), 'create-key-0001');
++  assert.equal(first.status, 201);
++  assert.equal(first.type, 'application/json');
++  assert.equal(typeof field(first.json, 'id'), 'string');
++  const replay = await call(base, 'POST', '/v1/users', valid(1), 'create-key-0001');
++  assert.equal(replay.status, 201);
++  assert.equal(field(replay.json, 'id'), field(first.json, 'id'));
++  const reused = await call(base, 'POST', '/v1/users', valid(2), 'create-key-0001');
++  assert.equal(reused.status, 409);
++  assert.equal(reused.type, 'application/problem+json');
++});
++
++test('POST /v1/users rejects an invalid body with 422 problem+json', async () => {
++  const res = await call(base, 'POST', '/v1/users', { ...valid(99), email: 'not-an-email' }, 'create-key-0002');
++  assert.equal(res.status, 422);
++  assert.equal(res.type, 'application/problem+json');
++  for (const k of ['type', 'title', 'status', 'detail', 'instance']) assert.ok(field(res.json, k) !== undefined, k);
++  assert.equal(field(res.json, 'status'), 422);
++  assert.equal(field(res.json, 'instance'), '/v1/users');
++});
++
++test('POST /v1/users without an Idempotency-Key is 422', async () => {
++  const res = await call(base, 'POST', '/v1/users', valid(3));
++  assert.equal(res.status, 422);
++  assert.equal(res.type, 'application/problem+json');
++});
++
++test('POST /v1/users with a duplicate email is 409 problem+json', async () => {
++  await call(base, 'POST', '/v1/users', valid(4), 'dup-key-0001');
++  const res = await call(base, 'POST', '/v1/users', { ...valid(5), email: valid(4)['email'] }, 'dup-key-0002');
++  assert.equal(res.status, 409);
++  assert.equal(res.type, 'application/problem+json');
++});
++
++test('GET /v1/users/:id returns the item, or 404 problem+json', async () => {
++  const created = await call(base, 'POST', '/v1/users', valid(6), 'get-key-0001');
++  const res = await call(base, 'GET', `/v1/users/${String(field(created.json, 'id'))}`);
++  assert.equal(res.status, 200);
++  const missing = await call(base, 'GET', '/v1/users/00000000-0000-4000-8000-000000000000');
++  assert.equal(missing.status, 404);
++  assert.equal(missing.type, 'application/problem+json');
++  const badId = await call(base, 'GET', '/v1/users/not-a-uuid');
++  assert.equal(badId.status, 422);
++});
++
++test('GET /v1/users paginates with an opaque cursor', async () => {
++  for (let i = 10; i < 13; i++) await call(base, 'POST', '/v1/users', valid(i), `list-key-${i}-0001`);
++  const page1 = await call(base, 'GET', '/v1/users?limit=2');
++  assert.equal(page1.status, 200);
++  const data = field(page1.json, 'data');
++  assert.ok(Array.isArray(data) && data.length === 2);
++  const cursor = field(page1.json, 'nextCursor');
++  assert.equal(typeof cursor, 'string');
++  const page2 = await call(base, 'GET', `/v1/users?limit=2&cursor=${String(cursor)}`);
++  assert.equal(page2.status, 200);
++  const bad = await call(base, 'GET', '/v1/users?cursor=%%%');
++  assert.equal(bad.status, 422);
++  assert.equal(bad.type, 'application/problem+json');
++});
++
++test('PATCH /v1/users/:id updates (200), 404 when missing, 422 when invalid', async () => {
++  const created = await call(base, 'POST', '/v1/users', valid(20), 'patch-key-0001');
++  const id = String(field(created.json, 'id'));
++  const res = await call(base, 'PATCH', `/v1/users/${id}`, { name: valid(21)['name'] });
++  assert.equal(res.status, 200);
++  assert.equal(field(res.json, 'name'), valid(21)['name']);
++  const missing = await call(base, 'PATCH', '/v1/users/00000000-0000-4000-8000-000000000000', { name: valid(22)['name'] });
++  assert.equal(missing.status, 404);
++  const invalid = await call(base, 'PATCH', `/v1/users/${id}`, { unknownField: true });
++  assert.equal(invalid.status, 422);
++});
++
++test('DELETE /v1/users/:id returns 204, then 404', async () => {
++  const created = await call(base, 'POST', '/v1/users', valid(30), 'delete-key-0001');
++  const path = `/v1/users/${String(field(created.json, 'id'))}`;
++  const res = await call(base, 'DELETE', path);
++  assert.equal(res.status, 204);
++  const gone = await call(base, 'GET', path);
++  assert.equal(gone.status, 404);
++  const again = await call(base, 'DELETE', path);
++  assert.equal(again.status, 404);
++  assert.equal(again.type, 'application/problem+json');
++});
+diff --git a/generated/users-api/tsconfig.json b/generated/users-api/tsconfig.json
+new file mode 100644
+index 0000000..f8545e3
+--- /dev/null
++++ b/generated/users-api/tsconfig.json
+@@ -0,0 +1,16 @@
++{
++  "compilerOptions": {
++    "target": "ES2023",
++    "module": "nodenext",
++    "moduleResolution": "nodenext",
++    "strict": true,
++    "noUncheckedIndexedAccess": true,
++    "allowImportingTsExtensions": true,
++    "erasableSyntaxOnly": true,
++    "verbatimModuleSyntax": true,
++    "noEmit": true,
++    "skipLibCheck": true,
++    "types": ["node"]
++  },
++  "include": ["src", "test"]
++}
+-- 
+2.55.0

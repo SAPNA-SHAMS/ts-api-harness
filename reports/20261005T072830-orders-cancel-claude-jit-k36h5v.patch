@@ -1,0 +1,126 @@
+From 8a1e75e00c032a3d7ec62bd29a76d49c4fd5a7ab Mon Sep 17 00:00:00 2001
+From: SAPNA-SHAMS <sapna.shams@softwarefinder.com>
+Date: Mon, 5 Oct 2026 12:28:32 +0500
+Subject: [PATCH] harness: orders-cancel (brownfield)
+
+run 20261005T072830-orders-cancel-claude-jit-k36h5v
+- regression-baseline: pass (1 existing test files green before the change)
+- tests: pass (8 tests green in 2 files)
+- regression: pass (1 pre-existing test files still green)
+- observed-red: pass (2 source files each unlocked by an observed-red test)
+- standards: pass (100% (6/6 rules))
+---
+ examples/orders-api/contract.snapshot.json    | 12 +++++++
+ examples/orders-api/src/orders/routes.ts      | 13 +++++++
+ examples/orders-api/src/orders/store.ts       |  8 +++++
+ .../orders-api/test/orders-cancel.test.ts     | 34 +++++++++++++++++++
+ 4 files changed, 67 insertions(+)
+ create mode 100644 examples/orders-api/test/orders-cancel.test.ts
+
+diff --git a/examples/orders-api/contract.snapshot.json b/examples/orders-api/contract.snapshot.json
+index 8a91fff..890fa9e 100644
+--- a/examples/orders-api/contract.snapshot.json
++++ b/examples/orders-api/contract.snapshot.json
+@@ -1,6 +1,18 @@
+ {
+   "version": 1,
+   "routes": [
++    {
++      "method": "DELETE",
++      "path": "/v1/orders/:id",
++      "status": 204,
++      "errors": [
++        404,
++        409,
++        422
++      ],
++      "body": null,
++      "response": null
++    },
+     {
+       "method": "GET",
+       "path": "/v1/orders",
+diff --git a/examples/orders-api/src/orders/routes.ts b/examples/orders-api/src/orders/routes.ts
+index 1bd5a34..00e9005 100644
+--- a/examples/orders-api/src/orders/routes.ts
++++ b/examples/orders-api/src/orders/routes.ts
+@@ -49,5 +49,18 @@ export function orderRoutes(store: OrderStore): Route[] {
+       response: Order,
+       handler: async ({ params, body }) => store.update(params.id, body),
+     }),
++    defineRoute({
++      method: 'DELETE',
++      path: '/v1/orders/:id',
++      status: 204,
++      errors: [404, 409, 422],
++      params: OrderIdParams,
++      query: NoParams,
++      body: NoBody,
++      response: NoBody,
++      handler: async ({ params }) => {
++        store.remove(params.id);
++      },
++    }),
+   ];
+ }
+diff --git a/examples/orders-api/src/orders/store.ts b/examples/orders-api/src/orders/store.ts
+index 77febe9..a01f506 100644
+--- a/examples/orders-api/src/orders/store.ts
++++ b/examples/orders-api/src/orders/store.ts
+@@ -23,6 +23,14 @@ export class OrderStore {
+     return order;
+   }
+ 
++  remove(id: string): void {
++    const order = this.get(id);
++    if (order.status === 'shipped') {
++      throw problem(409, 'order-shipped', 'Order already shipped', `Order '${id}' has shipped and cannot be cancelled`);
++    }
++    this.#orders.delete(id);
++  }
++
+   update(id: string, patch: OrderUpdate): Order {
+     const current = this.get(id);
+     if (current.status === 'shipped' && patch.quantity !== undefined) {
+diff --git a/examples/orders-api/test/orders-cancel.test.ts b/examples/orders-api/test/orders-cancel.test.ts
+new file mode 100644
+index 0000000..6bb2e8f
+--- /dev/null
++++ b/examples/orders-api/test/orders-cancel.test.ts
+@@ -0,0 +1,34 @@
++import assert from 'node:assert/strict';
++import { after, before, test } from 'node:test';
++import type { Server } from 'node:http';
++import { call, field, start } from './helpers.ts';
++
++let base = '';
++let server: Server | undefined;
++before(async () => ({ base, server } = await start()));
++after(() => server?.close());
++
++test('DELETE /v1/orders/:id cancels a pending order (204) and it is gone', async () => {
++  const created = await call(base, 'POST', '/v1/orders', { item: 'cancel-me', quantity: 1 }, 'cancel-key-0001');
++  const path = `/v1/orders/${String(field(created.json, 'id'))}`;
++  const res = await call(base, 'DELETE', path);
++  assert.equal(res.status, 204);
++  const gone = await call(base, 'GET', path);
++  assert.equal(gone.status, 404);
++});
++
++test('DELETE /v1/orders/:id on an unknown order is 404 problem+json', async () => {
++  const res = await call(base, 'DELETE', '/v1/orders/00000000-0000-4000-8000-000000000000');
++  assert.equal(res.status, 404);
++  assert.equal(res.type, 'application/problem+json');
++});
++
++test('DELETE /v1/orders/:id on a shipped order is 409 problem+json', async () => {
++  const created = await call(base, 'POST', '/v1/orders', { item: 'shipped', quantity: 1 }, 'cancel-key-0002');
++  const path = `/v1/orders/${String(field(created.json, 'id'))}`;
++  await call(base, 'PATCH', path, { status: 'shipped' });
++  const res = await call(base, 'DELETE', path);
++  assert.equal(res.status, 409);
++  assert.equal(res.type, 'application/problem+json');
++  assert.equal(field(res.json, 'status'), 409);
++});
+-- 
+2.55.0

@@ -1,0 +1,12 @@
+
+verdict    GREEN  (all gates green)
+gate       PASS     regression-baseline: 1 existing test files green before the change
+gate       PASS     tests: 8 tests green in 2 files
+gate       PASS     regression: 1 pre-existing test files still green
+gate       PASS     observed-red: 2 source files each unlocked by an observed-red test
+gate       PASS     standards: 100% (6/6 rules)
+hooks      10 pass, 2 blocked, 0 recorded  {"observed-red":1,"protect-existing-tests":1}
+tokens     91.6% fewer input tokens than baseline → tokens/20261005T072835-orders-cancel-openai-jit-vj5kg4.json
+ship       committed harness/orders-cancel-openai-vj5kg4 → examples/orders-api; push unproven; PR UNPROVEN: no origin remote (no origin remote configured)
+report     reports/20261005T072835-orders-cancel-openai-jit-vj5kg4.json
+logs       logs/20261005T072835-orders-cancel-openai-jit-vj5kg4

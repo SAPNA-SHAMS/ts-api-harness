@@ -1,0 +1,189 @@
+{
+  "runId": "20261005T072830-orders-cancel-claude-jit-k36h5v",
+  "task": "orders-cancel",
+  "driver": "claude",
+  "model": "scripted-replay (no live model)",
+  "mode": "jit",
+  "contextFetchers": true,
+  "compaction": true,
+  "estimator": "ceil(chars/4) over the serialized request (system + messages + tool specs), applied identically to both columns",
+  "baseline": "same conversation rendered with context fetchers and compaction disabled: standards, references and every workspace file front-loaded; raw tool output; no compaction",
+  "turns": [
+    {
+      "turn": 1,
+      "actualInputTokens": 651,
+      "actualInputTokensEstimated": 636,
+      "baselineInputTokensEstimated": 8672,
+      "outputTokens": 23,
+      "tools": [
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 2,
+      "actualInputTokens": 870,
+      "actualInputTokensEstimated": 851,
+      "baselineInputTokensEstimated": 8942,
+      "outputTokens": 24,
+      "tools": [
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 3,
+      "actualInputTokens": 844,
+      "actualInputTokensEstimated": 825,
+      "baselineInputTokensEstimated": 9152,
+      "outputTokens": 29,
+      "tools": [
+        "read_file"
+      ]
+    },
+    {
+      "turn": 4,
+      "actualInputTokens": 907,
+      "actualInputTokensEstimated": 888,
+      "baselineInputTokensEstimated": 9574,
+      "outputTokens": 29,
+      "tools": [
+        "read_file"
+      ]
+    },
+    {
+      "turn": 5,
+      "actualInputTokens": 862,
+      "actualInputTokensEstimated": 843,
+      "baselineInputTokensEstimated": 10009,
+      "outputTokens": 37,
+      "tools": [
+        "edit_file"
+      ]
+    },
+    {
+      "turn": 6,
+      "actualInputTokens": 828,
+      "actualInputTokensEstimated": 809,
+      "baselineInputTokensEstimated": 10104,
+      "outputTokens": 51,
+      "tools": [
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 7,
+      "actualInputTokens": 882,
+      "actualInputTokensEstimated": 863,
+      "baselineInputTokensEstimated": 10213,
+      "outputTokens": 426,
+      "tools": [
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 8,
+      "actualInputTokens": 1272,
+      "actualInputTokensEstimated": 1253,
+      "baselineInputTokensEstimated": 10675,
+      "outputTokens": 26,
+      "tools": [
+        "run_tests"
+      ]
+    },
+    {
+      "turn": 9,
+      "actualInputTokens": 958,
+      "actualInputTokensEstimated": 939,
+      "baselineInputTokensEstimated": 11424,
+      "outputTokens": 121,
+      "tools": [
+        "edit_file"
+      ]
+    },
+    {
+      "turn": 10,
+      "actualInputTokens": 930,
+      "actualInputTokensEstimated": 911,
+      "baselineInputTokensEstimated": 11581,
+      "outputTokens": 152,
+      "tools": [
+        "edit_file"
+      ]
+    },
+    {
+      "turn": 11,
+      "actualInputTokens": 959,
+      "actualInputTokensEstimated": 940,
+      "baselineInputTokensEstimated": 11770,
+      "outputTokens": 17,
+      "tools": [
+        "run_tests"
+      ]
+    },
+    {
+      "turn": 12,
+      "actualInputTokens": 970,
+      "actualInputTokensEstimated": 951,
+      "baselineInputTokensEstimated": 12046,
+      "outputTokens": 24,
+      "tools": [
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 13,
+      "actualInputTokens": 979,
+      "actualInputTokensEstimated": 960,
+      "baselineInputTokensEstimated": 12776,
+      "outputTokens": 25,
+      "tools": [
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 14,
+      "actualInputTokens": 1004,
+      "actualInputTokensEstimated": 985,
+      "baselineInputTokensEstimated": 12874,
+      "outputTokens": 25,
+      "tools": [
+        "finish"
+      ]
+    }
+  ],
+  "totals": {
+    "turns": 14,
+    "actualInputTokens": 12916,
+    "actualInputTokensEstimated": 12654,
+    "baselineInputTokensEstimated": 149812,
+    "outputTokens": 1009
+  },
+  "reductionPercent": 91.6,
+  "systemPromptTokens": {
+    "jit": 138,
+    "baseline": 7581
+  },
+  "verdict": "green",
+  "measuredBaseline": {
+    "runId": "20261005T072827-orders-cancel-claude-baseline-qa7tpi",
+    "note": "a separate run of the same task on the same driver with context fetchers and compaction disabled; input tokens as reported by the provider endpoint",
+    "perTurnInputTokens": [
+      8691,
+      8958,
+      9165,
+      9591,
+      10029,
+      10128,
+      10233,
+      10692,
+      11447,
+      11607,
+      11800,
+      12080,
+      12807,
+      12902
+    ],
+    "totalInputTokens": 150130,
+    "turns": 14
+  },
+  "reductionVsMeasuredBaselinePercent": 91.4
+}

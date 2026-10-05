@@ -1,0 +1,11 @@
+✔ DELETE /v1/orders/:id cancels a pending order (204) and it is gone (18.957875ms)
+✔ DELETE /v1/orders/:id on an unknown order is 404 problem+json (1.273958ms)
+✔ DELETE /v1/orders/:id on a shipped order is 409 problem+json (4.58325ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 149.256542

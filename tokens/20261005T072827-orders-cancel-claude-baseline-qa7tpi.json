@@ -1,0 +1,166 @@
+{
+  "runId": "20261005T072827-orders-cancel-claude-baseline-qa7tpi",
+  "task": "orders-cancel",
+  "driver": "claude",
+  "model": "scripted-replay (no live model)",
+  "mode": "baseline",
+  "contextFetchers": false,
+  "compaction": false,
+  "estimator": "ceil(chars/4) over the serialized request (system + messages + tool specs), applied identically to both columns",
+  "baseline": "same conversation rendered with context fetchers and compaction disabled: standards, references and every workspace file front-loaded; raw tool output; no compaction",
+  "turns": [
+    {
+      "turn": 1,
+      "actualInputTokens": 8691,
+      "actualInputTokensEstimated": 8672,
+      "baselineInputTokensEstimated": 8672,
+      "outputTokens": 17,
+      "tools": [
+        "get_task"
+      ]
+    },
+    {
+      "turn": 2,
+      "actualInputTokens": 8958,
+      "actualInputTokensEstimated": 8935,
+      "baselineInputTokensEstimated": 8935,
+      "outputTokens": 17,
+      "tools": [
+        "get_scope"
+      ]
+    },
+    {
+      "turn": 3,
+      "actualInputTokens": 9165,
+      "actualInputTokensEstimated": 9139,
+      "baselineInputTokensEstimated": 9139,
+      "outputTokens": 29,
+      "tools": [
+        "read_file"
+      ]
+    },
+    {
+      "turn": 4,
+      "actualInputTokens": 9591,
+      "actualInputTokensEstimated": 9561,
+      "baselineInputTokensEstimated": 9561,
+      "outputTokens": 29,
+      "tools": [
+        "read_file"
+      ]
+    },
+    {
+      "turn": 5,
+      "actualInputTokens": 10029,
+      "actualInputTokensEstimated": 9996,
+      "baselineInputTokensEstimated": 9996,
+      "outputTokens": 37,
+      "tools": [
+        "edit_file"
+      ]
+    },
+    {
+      "turn": 6,
+      "actualInputTokens": 10128,
+      "actualInputTokensEstimated": 10091,
+      "baselineInputTokensEstimated": 10091,
+      "outputTokens": 44,
+      "tools": [
+        "write_file"
+      ]
+    },
+    {
+      "turn": 7,
+      "actualInputTokens": 10233,
+      "actualInputTokensEstimated": 10193,
+      "baselineInputTokensEstimated": 10193,
+      "outputTokens": 419,
+      "tools": [
+        "write_file"
+      ]
+    },
+    {
+      "turn": 8,
+      "actualInputTokens": 10692,
+      "actualInputTokensEstimated": 10649,
+      "baselineInputTokensEstimated": 10649,
+      "outputTokens": 26,
+      "tools": [
+        "run_tests"
+      ]
+    },
+    {
+      "turn": 9,
+      "actualInputTokens": 11447,
+      "actualInputTokensEstimated": 11400,
+      "baselineInputTokensEstimated": 11400,
+      "outputTokens": 121,
+      "tools": [
+        "edit_file"
+      ]
+    },
+    {
+      "turn": 10,
+      "actualInputTokens": 11607,
+      "actualInputTokensEstimated": 11557,
+      "baselineInputTokensEstimated": 11557,
+      "outputTokens": 152,
+      "tools": [
+        "edit_file"
+      ]
+    },
+    {
+      "turn": 11,
+      "actualInputTokens": 11800,
+      "actualInputTokensEstimated": 11746,
+      "baselineInputTokensEstimated": 11746,
+      "outputTokens": 17,
+      "tools": [
+        "run_tests"
+      ]
+    },
+    {
+      "turn": 12,
+      "actualInputTokens": 12080,
+      "actualInputTokensEstimated": 12023,
+      "baselineInputTokensEstimated": 12023,
+      "outputTokens": 17,
+      "tools": [
+        "run_checks"
+      ]
+    },
+    {
+      "turn": 13,
+      "actualInputTokens": 12807,
+      "actualInputTokensEstimated": 12746,
+      "baselineInputTokensEstimated": 12746,
+      "outputTokens": 18,
+      "tools": [
+        "contract_diff"
+      ]
+    },
+    {
+      "turn": 14,
+      "actualInputTokens": 12902,
+      "actualInputTokensEstimated": 12839,
+      "baselineInputTokensEstimated": 12839,
+      "outputTokens": 25,
+      "tools": [
+        "finish"
+      ]
+    }
+  ],
+  "totals": {
+    "turns": 14,
+    "actualInputTokens": 150130,
+    "actualInputTokensEstimated": 149547,
+    "baselineInputTokensEstimated": 149547,
+    "outputTokens": 968
+  },
+  "reductionPercent": 0,
+  "systemPromptTokens": {
+    "jit": 138,
+    "baseline": 7581
+  },
+  "verdict": "green"
+}

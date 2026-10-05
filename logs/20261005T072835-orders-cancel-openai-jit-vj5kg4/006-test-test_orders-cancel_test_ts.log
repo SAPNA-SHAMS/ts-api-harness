@@ -1,0 +1,67 @@
+✖ DELETE /v1/orders/:id cancels a pending order (204) and it is gone (17.559417ms)
+✖ DELETE /v1/orders/:id on an unknown order is 404 problem+json (1.774875ms)
+✖ DELETE /v1/orders/:id on a shipped order is 409 problem+json (7.31475ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 0
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 148.810667
+
+✖ failing tests:
+
+test at test/orders-cancel.test.ts:11:1
+✖ DELETE /v1/orders/:id cancels a pending order (204) and it is gone (17.559417ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  405 !== 204
+  
+      at TestContext.<anonymous> (file:///Users/sapnashams/Documents/Harness%20Assignment/runs/20261005T072835-orders-cancel-openai-jit-vj5kg4/workspace/test/orders-cancel.test.ts:15:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 405,
+    expected: 204,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test/orders-cancel.test.ts:20:1
+✖ DELETE /v1/orders/:id on an unknown order is 404 problem+json (1.774875ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  405 !== 404
+  
+      at TestContext.<anonymous> (file:///Users/sapnashams/Documents/Harness%20Assignment/runs/20261005T072835-orders-cancel-openai-jit-vj5kg4/workspace/test/orders-cancel.test.ts:22:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 405,
+    expected: 404,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test/orders-cancel.test.ts:26:1
+✖ DELETE /v1/orders/:id on a shipped order is 409 problem+json (7.31475ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  405 !== 409
+  
+      at TestContext.<anonymous> (file:///Users/sapnashams/Documents/Harness%20Assignment/runs/20261005T072835-orders-cancel-openai-jit-vj5kg4/workspace/test/orders-cancel.test.ts:31:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 405,
+    expected: 409,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

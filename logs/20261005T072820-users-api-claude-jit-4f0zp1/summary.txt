@@ -1,0 +1,10 @@
+
+verdict    GREEN  (all gates green)
+gate       PASS     tests: 8 tests green in 1 files
+gate       PASS     observed-red: 4 source files each unlocked by an observed-red test
+gate       PASS     standards: 100% (6/6 rules)
+hooks      17 pass, 1 blocked, 1 recorded  {"observed-red":1}
+tokens     91% fewer input tokens than baseline → tokens/20261005T072820-users-api-claude-jit-4f0zp1.json
+ship       committed harness/users-api-claude-4f0zp1 → generated/users-api; push unproven; PR UNPROVEN: no origin remote (no origin remote configured)
+report     reports/20261005T072820-users-api-claude-jit-4f0zp1.json
+logs       logs/20261005T072820-users-api-claude-jit-4f0zp1

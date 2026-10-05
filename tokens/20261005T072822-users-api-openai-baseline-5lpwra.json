@@ -1,0 +1,156 @@
+{
+  "runId": "20261005T072822-users-api-openai-baseline-5lpwra",
+  "task": "users-api",
+  "driver": "openai",
+  "model": "scripted-replay (no live model)",
+  "mode": "baseline",
+  "contextFetchers": false,
+  "compaction": false,
+  "estimator": "ceil(chars/4) over the serialized request (system + messages + tool specs), applied identically to both columns",
+  "baseline": "same conversation rendered with context fetchers and compaction disabled: standards, references and every workspace file front-loaded; raw tool output; no compaction",
+  "turns": [
+    {
+      "turn": 1,
+      "actualInputTokens": 6533,
+      "actualInputTokensEstimated": 6429,
+      "baselineInputTokensEstimated": 6429,
+      "outputTokens": 33,
+      "tools": [
+        "get_task"
+      ]
+    },
+    {
+      "turn": 2,
+      "actualInputTokens": 6883,
+      "actualInputTokensEstimated": 6775,
+      "baselineInputTokensEstimated": 6775,
+      "outputTokens": 40,
+      "tools": [
+        "get_reference"
+      ]
+    },
+    {
+      "turn": 3,
+      "actualInputTokens": 7234,
+      "actualInputTokensEstimated": 7121,
+      "baselineInputTokensEstimated": 7121,
+      "outputTokens": 304,
+      "tools": [
+        "write_file"
+      ]
+    },
+    {
+      "turn": 4,
+      "actualInputTokens": 7574,
+      "actualInputTokensEstimated": 7446,
+      "baselineInputTokensEstimated": 7446,
+      "outputTokens": 1282,
+      "tools": [
+        "write_file"
+      ]
+    },
+    {
+      "turn": 5,
+      "actualInputTokens": 8878,
+      "actualInputTokensEstimated": 8720,
+      "baselineInputTokensEstimated": 8720,
+      "outputTokens": 41,
+      "tools": [
+        "run_tests"
+      ]
+    },
+    {
+      "turn": 6,
+      "actualInputTokens": 9334,
+      "actualInputTokensEstimated": 9171,
+      "baselineInputTokensEstimated": 9171,
+      "outputTokens": 304,
+      "tools": [
+        "write_file"
+      ]
+    },
+    {
+      "turn": 7,
+      "actualInputTokens": 9661,
+      "actualInputTokensEstimated": 9483,
+      "baselineInputTokensEstimated": 9483,
+      "outputTokens": 524,
+      "tools": [
+        "write_file"
+      ]
+    },
+    {
+      "turn": 8,
+      "actualInputTokens": 10207,
+      "actualInputTokensEstimated": 10009,
+      "baselineInputTokensEstimated": 10009,
+      "outputTokens": 547,
+      "tools": [
+        "write_file"
+      ]
+    },
+    {
+      "turn": 9,
+      "actualInputTokens": 10806,
+      "actualInputTokensEstimated": 10585,
+      "baselineInputTokensEstimated": 10585,
+      "outputTokens": 515,
+      "tools": [
+        "write_file"
+      ]
+    },
+    {
+      "turn": 10,
+      "actualInputTokens": 11344,
+      "actualInputTokensEstimated": 11100,
+      "baselineInputTokensEstimated": 11100,
+      "outputTokens": 116,
+      "tools": [
+        "write_file"
+      ]
+    },
+    {
+      "turn": 11,
+      "actualInputTokens": 11480,
+      "actualInputTokensEstimated": 11228,
+      "baselineInputTokensEstimated": 11228,
+      "outputTokens": 34,
+      "tools": [
+        "run_tests"
+      ]
+    },
+    {
+      "turn": 12,
+      "actualInputTokens": 11705,
+      "actualInputTokensEstimated": 11449,
+      "baselineInputTokensEstimated": 11449,
+      "outputTokens": 34,
+      "tools": [
+        "run_checks"
+      ]
+    },
+    {
+      "turn": 13,
+      "actualInputTokens": 12395,
+      "actualInputTokensEstimated": 12135,
+      "baselineInputTokensEstimated": 12135,
+      "outputTokens": 45,
+      "tools": [
+        "finish"
+      ]
+    }
+  ],
+  "totals": {
+    "turns": 13,
+    "actualInputTokens": 124034,
+    "actualInputTokensEstimated": 121651,
+    "baselineInputTokensEstimated": 121651,
+    "outputTokens": 3819
+  },
+  "reductionPercent": 0,
+  "systemPromptTokens": {
+    "jit": 138,
+    "baseline": 5414
+  },
+  "verdict": "green"
+}

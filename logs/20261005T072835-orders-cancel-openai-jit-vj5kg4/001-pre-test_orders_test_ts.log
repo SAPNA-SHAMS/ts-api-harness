@@ -1,0 +1,13 @@
+✔ POST /v1/orders creates an order (201) and replays on the same Idempotency-Key (43.734458ms)
+✔ POST /v1/orders rejects invalid bodies with 422 problem+json (3.077083ms)
+✔ GET /v1/orders/:id returns 404 problem+json for unknown ids (2.539292ms)
+✔ GET /v1/orders paginates with an opaque cursor (11.353416ms)
+✔ PATCH /v1/orders/:id ships an order; quantity changes after shipping are 409 (6.03575ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 174.621416
