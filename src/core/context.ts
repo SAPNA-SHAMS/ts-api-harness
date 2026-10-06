@@ -32,9 +32,11 @@ function readDir(dir: string): { name: string; text: string }[] {
 /** The front-loaded prompt a harness without context fetchers would send: docs, references and the whole workspace. */
 export function baselineSystem(workspaceFiles: { rel: string; text: string }[]): string {
   const standards = readFileSync(join(REPO_ROOT, 'context', 'standards.md'), 'utf8');
+  const sheetPath = join(REPO_ROOT, 'context', 'conventions.md');
+  const sheet = existsSync(sheetPath) ? readFileSync(sheetPath, 'utf8') : '';
   const refs = readDir(join(REPO_ROOT, 'context', 'reference')).map((r) => `## reference/${r.name}\n${r.text}`).join('\n');
   const files = workspaceFiles.map((f) => `=== ${f.rel} ===\n${f.text}`).join('\n');
-  return `${PREAMBLE}\n\n# Standards\n${standards}\n\n# References\n${refs}\n\n# Workspace (every file)\n${files}`;
+  return `${PREAMBLE}\n\n# Standards\n${standards}\n\n# Conventions\n${sheet}\n\n# References\n${refs}\n\n# Workspace (every file)\n${files}`;
 }
 
 export function baselineKickoff(task: Task, taskText: string): string {
@@ -68,8 +70,9 @@ function digestLine(call: ToolCall, summary: string): string {
 
 /**
  * Compaction. Tool exchanges are kept verbatim from the newest backwards until `keepRecentTokens`
- * is spent (always at least the latest one), and never before the model's latest action (write,
- * edit, test run, finish) so fetched context survives until it is used; older turns collapse into a progress digest (one line
+ * is spent (always at least the latest one), and never after the model's action before last (write,
+ * edit, test run, finish), so fetched context survives until it is used and the latest action's own
+ * arguments stay visible; older turns collapse into a progress digest (one line
  * per call) in the opening message. Pinned results (task, scope) stay verbatim in the opening
  * message for the whole run, latest per tool. Executed arguments over `elideOver` chars are elided.
  */
@@ -93,11 +96,10 @@ export function renderJit(history: HistItem[], keepRecentTokens: number, elideOv
   if (start === rest.length) start = 0;
   // Context is kept until consumed: nothing fetched since the model's last action is compacted.
   const acted = (c: ToolCall): boolean => ACTIONS.has(c.name === DISPATCH_TOOL && typeof c.args['name'] === 'string' ? c.args['name'] : c.name);
-  let lastAction = -1;
-  rest.forEach((h, i) => {
-    if (h.kind === 'assistant' && h.calls.some(acted)) lastAction = i;
-  });
-  start = Math.min(start, lastAction === -1 ? 0 : lastAction);
+  const actions = rest.flatMap((h, i) => (h.kind === 'assistant' && h.calls.some(acted) ? [i] : []));
+  const lastAction = actions.at(-1) ?? -1;
+  // Keep from the action before last: the model sees its latest action, its result, and the context that informed it.
+  start = Math.min(start, actions.at(-2) ?? 0);
   const pinned = new Map<string, string>();
   for (const h of rest) if (h.kind === 'tool') for (const r of h.results) if (r.pin === true) pinned.set(r.name, r.jit);
   const digest: string[] = [];
@@ -121,9 +123,10 @@ export function renderJit(history: HistItem[], keepRecentTokens: number, elideOv
   let opening = first.jit;
   if (pinned.size > 0) opening += `\n\nPinned context (kept for the whole run; no need to fetch again):\n${[...pinned.values()].join('\n')}`;
   if (digest.length > 0) opening += `\n\nProgress so far (older turns compacted by the harness; files you wrote are on disk):\n${digest.join('\n')}`;
-  const recent = rest.slice(start).map((h): Message => {
+  const recent = rest.slice(start).map((h, j): Message => {
     if (h.kind === 'user') return { role: 'user', text: h.jit };
-    if (h.kind === 'assistant') return { role: 'assistant', text: h.text, toolCalls: elideArgs(h.calls, elideOver) };
+    // The latest action keeps its arguments, so the model can see exactly what it just wrote.
+    if (h.kind === 'assistant') return { role: 'assistant', text: h.text, toolCalls: start + j >= lastAction ? h.calls : elideArgs(h.calls, elideOver) };
     return { role: 'tool', results: h.results.map((r) => ({ callId: r.callId, name: r.name, content: r.pin === true ? `[pinned in the opening message] ${r.summary}` : r.jit })) };
   });
   return [{ role: 'user', text: opening }, ...recent];
