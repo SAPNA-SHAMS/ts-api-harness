@@ -2,6 +2,17 @@
   "version": 1,
   "routes": [
     {
+      "method": "DELETE",
+      "path": "/v1/orders/:id",
+      "status": 204,
+      "errors": [
+        404,
+        422
+      ],
+      "body": null,
+      "response": null
+    },
+    {
       "method": "GET",
       "path": "/v1/orders",
       "status": 200,

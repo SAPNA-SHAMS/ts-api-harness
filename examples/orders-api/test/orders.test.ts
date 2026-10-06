@@ -46,6 +46,24 @@ test('GET /v1/orders paginates with an opaque cursor', async () => {
   assert.equal(bad.status, 422);
 });
 
+test('DELETE /v1/orders/:id cancels an order (204), then it is gone (404)', async () => {
+  const created = await call(base, 'POST', '/v1/orders', { item: 'cancel-me', quantity: 1 }, 'order-key-0004');
+  const id = String(field(created.json, 'id'));
+  const res = await call(base, 'DELETE', `/v1/orders/${id}`);
+  assert.equal(res.status, 204);
+  const again = await call(base, 'DELETE', `/v1/orders/${id}`);
+  assert.equal(again.status, 404);
+  assert.equal(again.type, 'application/problem+json');
+  const get = await call(base, 'GET', `/v1/orders/${id}`);
+  assert.equal(get.status, 404);
+});
+
+test('DELETE /v1/orders/:id rejects a malformed id with 422', async () => {
+  const res = await call(base, 'DELETE', '/v1/orders/not-a-uuid');
+  assert.equal(res.status, 422);
+  assert.equal(res.type, 'application/problem+json');
+});
+
 test('PATCH /v1/orders/:id ships an order; quantity changes after shipping are 409', async () => {
   const created = await call(base, 'POST', '/v1/orders', { item: 'gadget', quantity: 1 }, 'order-key-0003');
   const id = String(field(created.json, 'id'));
