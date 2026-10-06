@@ -216,7 +216,7 @@ export async function runTask(opts: RunOptions): Promise<RunReport> {
   for (let turn = 1; turn <= maxTurns && finished === undefined; turn++) {
     const jitReq: ModelRequest = {
       system: systemJit,
-      messages: renderJit(history, config.compaction.keepRecentToolResults, config.compaction.elideArgsOverChars),
+      messages: renderJit(history, config.compaction.keepRecentTokens, config.compaction.elideArgsOverChars),
       tools: jitTools,
       maxOutputTokens: MAX_OUTPUT_TOKENS,
     };
@@ -307,7 +307,7 @@ export async function runTask(opts: RunOptions): Promise<RunReport> {
         writeText(p, out.raw);
         if (!jit.includes('log: ')) jit = `${jit}\nlog: ${relLog(p)}`;
       }
-      results.push({ callId: wire.id, name: wire.name, summary: out.summary, jit, raw });
+      results.push({ callId: wire.id, name: wire.name, summary: out.summary, jit, raw, ...(out.pin === true ? { pin: true } : {}) });
       transcript.push({ turn, tool: call.name, path: call.args['path'], status: out.status, summary: out.summary, feedback });
       say(`[turn ${String(turn).padStart(2)}] ${call.name}${typeof call.args['path'] === 'string' ? ` ${call.args['path']}` : ''} → ${out.summary}${feedback.length > 0 ? ` | ${feedback.map((f) => f.split('\n')[0]).join(' | ')}` : ''}`);
     }

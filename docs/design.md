@@ -76,16 +76,25 @@ What earned it:
 2. **Compact tool returns.** Each tool returns a summary, a compact form and a raw form. Only the
    compact form reaches the model; raw test logs, tsc output and full reports go to `logs/<run>/`
    and are referenced by path.
-3. **Digest compaction.** Only the latest tool exchange stays verbatim. Older turns collapse to
-   one digest line each (`- write_file src/users/store.ts → wrote … (55 lines)`), and executed
-   arguments over 200 characters (file bodies) are elided because they are on disk.
-4. **JIT tool schemas.** Four tools ship with full schemas (chosen by mode). The rest sit in a
+3. **Compaction that keeps context until it is used.** Results fetched since the model's last
+   action (write, edit, test run, finish) stay verbatim. Before that, a 1,200-token budget keeps
+   the newest exchanges verbatim. Older turns collapse to one deduplicated digest line each, and
+   executed arguments over 200 characters (file bodies) are elided because they are on disk. The
+   task and scope are pinned verbatim for the whole run.
+4. **Export-surface reads.** A plain `read_file` of a harness-owned file returns declarations
+   without bodies: `http.ts` goes from 6,703 to 1,969 characters. A line range returns the bodies.
+5. **JIT tool schemas.** Four tools ship with full schemas (chosen by mode). The rest sit in a
    one-line catalog behind a `use_tool` dispatcher. The engine unwraps it, so hooks still see the
    real tool name.
 
-The margin over 90% is thin, and it was measured with a scripted stand-in for the model (§5).
-The baseline grows with every turn while the JIT cost stays roughly flat, so longer live
-sessions should widen the gap. That is unproven until live runs exist.
+**Live results miss the target.** On the same task, live Claude (`anthropic/claude-sonnet-5.5`)
+finished green at **84.4%** and live OpenAI (`openai/gpt-6.1-sol`) at **87.6%**. The scripted
+runs above reached 90.6–91.4% under an earlier policy that kept only the latest tool exchange.
+That policy failed live: Claude lost the task one turn after fetching it and re-fetched for 40
+turns without writing a file. Pinning, retention until use, and export-surface reads fixed the
+loop, at the cost of the margin. Correctness won the trade-off. Real models also fetch every
+reference up front, which is the next thing to attack (for example, by pinning one combined
+conventions sheet instead of six topics).
 
 ## 4. Extension points
 
@@ -113,11 +122,10 @@ the route surface matches the task and snapshot; standards are re-checked on the
 committed.
 
 **UNPROVEN, labelled as such:**
-- No provider keys were available in this environment. Every run in `reports/EVIDENCE.md` went
-  through the real driver code against `test/fake-provider/`, a local server that validates both
-  wire formats, with a scripted stand-in deciding the tool calls. Live model behaviour, live
-  token counts and live turn counts are UNPROVEN until `npm run evidence -- --live` is run with
-  keys.
+- Live runs exist only for the greenfield task without shipping: green on both providers,
+  reached through OpenRouter. The brownfield task, measured-baseline runs and the ship step have
+  only been exercised with the scripted stand-in behind `test/fake-provider/`.
+- The 90% token target is UNMET with live models (84.4%, 87.6%).
 - Push and pull request are proven once: the ship step opened
   [PR #1](https://github.com/SAPNA-SHAMS/ts-api-harness/pull/1). The earlier evidence runs predate
   the remote and stopped at local feature-branch commits plus `reports/<run>.patch`.

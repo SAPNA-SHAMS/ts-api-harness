@@ -11,11 +11,11 @@ branch. The model never commits.
 - **Run evidence:** [reports/EVIDENCE.md](reports/EVIDENCE.md).
 - **Original addition:** the declared-surface (contract-drift) gate ([below](#original-addition-declared-surface-gate)).
 
-> **Honesty note.** No provider API keys were available where this was built. All run evidence
-> was produced by the real drivers talking to `test/fake-provider/`, a local server that
-> validates the Anthropic Messages and OpenAI Chat Completions wire formats, with a scripted
-> stand-in choosing the tool calls. The harness, gates, checks, drivers' translation and token
-> accounting are exercised for real. Live model behaviour is **UNPROVEN** until run with keys.
+> **Honesty note.** The same task file has run **green on live Claude
+> (`anthropic/claude-sonnet-5.5`) and live OpenAI (`openai/gpt-6.1-sol`)** through OpenRouter,
+> standards 100% on both. The live token reduction is **84.4% and 87.6%, below the 90% target**.
+> The earlier evidence (both tasks, both drivers, measured baselines) came from the real drivers
+> talking to `test/fake-provider/`, a local wire-validating server with a scripted stand-in model.
 > The ship step pushed a feature branch and opened
 > [PR #1](https://github.com/SAPNA-SHAMS/ts-api-harness/pull/1) itself, after every gate was green.
 
@@ -150,15 +150,15 @@ Mechanisms: JIT fetchers, compact tool returns with raw logs on disk, digest com
 executed arguments, and JIT tool schemas. Numbers and per-turn tables are in
 [design §3](docs/design.md#3-token-budget).
 
-| run (offline provider) | shadow baseline | measured baseline |
-|---|---|---|
-| users-api / claude | 91.0% | 90.9% |
-| users-api / openai | 91.0% | 90.6% |
-| orders-cancel / claude | 91.6% | 91.4% |
-| orders-cancel / openai | 91.6% | 91.1% |
+| run | model | verdict | reduction (shadow baseline) |
+|---|---|---|---|
+| users-api / claude, live | anthropic/claude-sonnet-5.5 | GREEN, 18 turns | **84.4%** |
+| users-api / openai, live | openai/gpt-6.1-sol | GREEN, 35 turns | **87.6%** |
 
-These are the harness's own numbers from [reports/EVIDENCE.md](reports/EVIDENCE.md). The margin
-over 90% is thin, and it was measured against a scripted stand-in, not a live model.
+**The 90% target is not met with live models.** The scripted runs listed in
+[reports/EVIDENCE.md](reports/EVIDENCE.md) measured 90.6–91.4% under an earlier, more aggressive
+compaction policy. That policy made live Claude loop for 40 turns without writing anything, so it
+was replaced (see [design §3](docs/design.md#3-token-budget)).
 
 ## Extending without touching core
 

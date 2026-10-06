@@ -1,0 +1,35 @@
+contract-drift              FAIL     src:0  POST /v1/users: declared by the task but not implemented
+contract-drift              FAIL     src:0  GET /v1/users/:id: declared by the task but not implemented
+contract-drift              FAIL     src:0  GET /v1/users: declared by the task but not implemented
+contract-drift              FAIL     src:0  PATCH /v1/users/:id: declared by the task but not implemented
+contract-drift              FAIL     src:0  DELETE /v1/users/:id: declared by the task but not implemented
+problem-json                pass     src/lib/http.ts
+problem-json                pass     src/lib/idempotency.ts
+problem-json                pass     src/lib/pagination.ts
+problem-json                pass     src/lib/problem.ts
+problem-json                pass     src/server.ts
+problem-json                FAIL     test:0  no test asserts an application/problem+json response
+rest-conventions            FAIL     src:0  no routes found
+strict-types                pass     src/lib/http.ts
+strict-types                pass     src/lib/idempotency.ts
+strict-types                pass     src/lib/pagination.ts
+strict-types                pass     src/lib/problem.ts
+strict-types                pass     src/server.ts
+strict-types                pass     test/helpers.ts
+tsc-strict                  pass     src/lib/http.ts
+tsc-strict                  pass     src/lib/idempotency.ts
+tsc-strict                  pass     src/lib/pagination.ts
+tsc-strict                  pass     src/lib/problem.ts
+tsc-strict                  FAIL     src/server.ts:2  TS2307: Cannot find module './app.ts' or its corresponding type declarations.
+tsc-strict                  FAIL     test/helpers.ts:4  TS2307: Cannot find module '../src/app.ts' or its corresponding type declarations.
+zod-boundary                pass     src/server.ts
+zod-boundary                FAIL     src:0  no defineRoute(...) routes found
+
+contract-drift              FAIL     0/5 routes
+problem-json                FAIL     9/9 error paths
+rest-conventions            FAIL     0/0 routes
+strict-types                pass     6/6 files
+tsc-strict                  FAIL     2 errors
+zod-boundary                FAIL     0/0 handlers
+orm-users-explicit-columns  n/a      0/0 queries  (no ORM queries on users found)
+verdict                     16%      → standards FAILED

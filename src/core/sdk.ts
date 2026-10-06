@@ -74,6 +74,8 @@ export type ToolOutput = {
   compact?: string;
   /** Full output. Written to disk; sent to the model only in baseline mode. */
   raw?: string;
+  /** Keep the compact form verbatim for the whole run (small, always-needed context such as the task). */
+  pin?: boolean;
 };
 
 export type ToolContext = {

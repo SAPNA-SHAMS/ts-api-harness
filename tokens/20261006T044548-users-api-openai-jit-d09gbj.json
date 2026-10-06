@@ -1,0 +1,410 @@
+{
+  "runId": "20261006T044548-users-api-openai-jit-d09gbj",
+  "task": "users-api",
+  "driver": "openai",
+  "model": "openai/gpt-6.1-sol",
+  "mode": "jit",
+  "contextFetchers": true,
+  "compaction": true,
+  "estimator": "ceil(chars/4) over the serialized request (system + messages + tool specs), applied identically to both columns",
+  "baseline": "same conversation rendered with context fetchers and compaction disabled: standards, references and every workspace file front-loaded; raw tool output; no compaction",
+  "turns": [
+    {
+      "turn": 1,
+      "actualInputTokens": 483,
+      "actualInputTokensEstimated": 632,
+      "baselineInputTokensEstimated": 6429,
+      "outputTokens": 19,
+      "tools": [
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 2,
+      "actualInputTokens": 767,
+      "actualInputTokensEstimated": 916,
+      "baselineInputTokensEstimated": 6791,
+      "outputTokens": 19,
+      "tools": [
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 3,
+      "actualInputTokens": 684,
+      "actualInputTokensEstimated": 879,
+      "baselineInputTokensEstimated": 6954,
+      "outputTokens": 19,
+      "tools": [
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 4,
+      "actualInputTokens": 776,
+      "actualInputTokensEstimated": 995,
+      "baselineInputTokensEstimated": 7070,
+      "outputTokens": 19,
+      "tools": [
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 5,
+      "actualInputTokens": 819,
+      "actualInputTokensEstimated": 1066,
+      "baselineInputTokensEstimated": 7141,
+      "outputTokens": 84,
+      "tools": [
+        "use_tool",
+        "use_tool",
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 6,
+      "actualInputTokens": 1697,
+      "actualInputTokensEstimated": 1965,
+      "baselineInputTokensEstimated": 8040,
+      "outputTokens": 72,
+      "tools": [
+        "read_file"
+      ]
+    },
+    {
+      "turn": 7,
+      "actualInputTokens": 2162,
+      "actualInputTokensEstimated": 2393,
+      "baselineInputTokensEstimated": 8422,
+      "outputTokens": 162,
+      "tools": [
+        "use_tool",
+        "use_tool",
+        "read_file",
+        "read_file",
+        "read_file",
+        "read_file"
+      ]
+    },
+    {
+      "turn": 8,
+      "actualInputTokens": 5496,
+      "actualInputTokensEstimated": 5529,
+      "baselineInputTokensEstimated": 11828,
+      "outputTokens": 1781,
+      "tools": [
+        "write_file"
+      ]
+    },
+    {
+      "turn": 9,
+      "actualInputTokens": 827,
+      "actualInputTokensEstimated": 966,
+      "baselineInputTokensEstimated": 13358,
+      "outputTokens": 21,
+      "tools": [
+        "run_tests"
+      ]
+    },
+    {
+      "turn": 10,
+      "actualInputTokens": 925,
+      "actualInputTokensEstimated": 1075,
+      "baselineInputTokensEstimated": 13816,
+      "outputTokens": 19,
+      "tools": [
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 11,
+      "actualInputTokens": 1097,
+      "actualInputTokensEstimated": 1257,
+      "baselineInputTokensEstimated": 14177,
+      "outputTokens": 19,
+      "tools": [
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 12,
+      "actualInputTokens": 1014,
+      "actualInputTokensEstimated": 1219,
+      "baselineInputTokensEstimated": 14345,
+      "outputTokens": 105,
+      "tools": [
+        "read_file",
+        "read_file",
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 13,
+      "actualInputTokens": 3348,
+      "actualInputTokensEstimated": 3249,
+      "baselineInputTokensEstimated": 16284,
+      "outputTokens": 207,
+      "tools": [
+        "use_tool",
+        "use_tool",
+        "use_tool",
+        "use_tool",
+        "read_file",
+        "read_file",
+        "read_file",
+        "read_file"
+      ]
+    },
+    {
+      "turn": 14,
+      "actualInputTokens": 7231,
+      "actualInputTokensEstimated": 6952,
+      "baselineInputTokensEstimated": 20253,
+      "outputTokens": 245,
+      "tools": [
+        "write_file"
+      ]
+    },
+    {
+      "turn": 15,
+      "actualInputTokens": 914,
+      "actualInputTokensEstimated": 1041,
+      "baselineInputTokensEstimated": 20510,
+      "outputTokens": 19,
+      "tools": [
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 16,
+      "actualInputTokens": 1086,
+      "actualInputTokensEstimated": 1223,
+      "baselineInputTokensEstimated": 20871,
+      "outputTokens": 19,
+      "tools": [
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 17,
+      "actualInputTokens": 988,
+      "actualInputTokensEstimated": 1172,
+      "baselineInputTokensEstimated": 21031,
+      "outputTokens": 130,
+      "tools": [
+        "read_file",
+        "read_file",
+        "read_file",
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 18,
+      "actualInputTokens": 3687,
+      "actualInputTokensEstimated": 3577,
+      "baselineInputTokensEstimated": 23262,
+      "outputTokens": 138,
+      "tools": [
+        "read_file",
+        "read_file",
+        "read_file",
+        "read_file",
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 19,
+      "actualInputTokens": 6668,
+      "actualInputTokensEstimated": 6332,
+      "baselineInputTokensEstimated": 26282,
+      "outputTokens": 84,
+      "tools": [
+        "use_tool",
+        "use_tool",
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 20,
+      "actualInputTokens": 7371,
+      "actualInputTokensEstimated": 7068,
+      "baselineInputTokensEstimated": 27019,
+      "outputTokens": 500,
+      "tools": [
+        "write_file"
+      ]
+    },
+    {
+      "turn": 21,
+      "actualInputTokens": 1652,
+      "actualInputTokensEstimated": 1811,
+      "baselineInputTokensEstimated": 27495,
+      "outputTokens": 35,
+      "tools": [
+        "write_file"
+      ]
+    },
+    {
+      "turn": 22,
+      "actualInputTokens": 1708,
+      "actualInputTokensEstimated": 1894,
+      "baselineInputTokensEstimated": 27578,
+      "outputTokens": 38,
+      "tools": [
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 23,
+      "actualInputTokens": 1895,
+      "actualInputTokensEstimated": 2088,
+      "baselineInputTokensEstimated": 27939,
+      "outputTokens": 135,
+      "tools": [
+        "read_file",
+        "read_file",
+        "read_file",
+        "use_tool",
+        "read_file"
+      ]
+    },
+    {
+      "turn": 24,
+      "actualInputTokens": 5270,
+      "actualInputTokensEstimated": 4999,
+      "baselineInputTokensEstimated": 32083,
+      "outputTokens": 111,
+      "tools": [
+        "read_file",
+        "read_file",
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 25,
+      "actualInputTokens": 6205,
+      "actualInputTokensEstimated": 5878,
+      "baselineInputTokensEstimated": 32910,
+      "outputTokens": 28,
+      "tools": [
+        "read_file"
+      ]
+    },
+    {
+      "turn": 26,
+      "actualInputTokens": 6251,
+      "actualInputTokensEstimated": 5948,
+      "baselineInputTokensEstimated": 32980,
+      "outputTokens": 25,
+      "tools": [
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 27,
+      "actualInputTokens": 6364,
+      "actualInputTokensEstimated": 6097,
+      "baselineInputTokensEstimated": 33129,
+      "outputTokens": 478,
+      "tools": [
+        "write_file"
+      ]
+    },
+    {
+      "turn": 28,
+      "actualInputTokens": 2120,
+      "actualInputTokensEstimated": 2246,
+      "baselineInputTokensEstimated": 33581,
+      "outputTokens": 137,
+      "tools": [
+        "read_file",
+        "read_file",
+        "read_file",
+        "read_file"
+      ]
+    },
+    {
+      "turn": 29,
+      "actualInputTokens": 4230,
+      "actualInputTokensEstimated": 3999,
+      "baselineInputTokensEstimated": 36210,
+      "outputTokens": 19,
+      "tools": [
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 30,
+      "actualInputTokens": 4391,
+      "actualInputTokensEstimated": 4168,
+      "baselineInputTokensEstimated": 36571,
+      "outputTokens": 25,
+      "tools": [
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 31,
+      "actualInputTokens": 4504,
+      "actualInputTokensEstimated": 4318,
+      "baselineInputTokensEstimated": 36721,
+      "outputTokens": 99,
+      "tools": [
+        "write_file"
+      ]
+    },
+    {
+      "turn": 32,
+      "actualInputTokens": 1349,
+      "actualInputTokensEstimated": 1507,
+      "baselineInputTokensEstimated": 36860,
+      "outputTokens": 21,
+      "tools": [
+        "run_tests"
+      ]
+    },
+    {
+      "turn": 33,
+      "actualInputTokens": 1420,
+      "actualInputTokensEstimated": 1598,
+      "baselineInputTokensEstimated": 37016,
+      "outputTokens": 19,
+      "tools": [
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 34,
+      "actualInputTokens": 1487,
+      "actualInputTokensEstimated": 1690,
+      "baselineInputTokensEstimated": 37718,
+      "outputTokens": 19,
+      "tools": [
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 35,
+      "actualInputTokens": 1594,
+      "actualInputTokensEstimated": 1801,
+      "baselineInputTokensEstimated": 37829,
+      "outputTokens": 85,
+      "tools": [
+        "finish"
+      ]
+    }
+  ],
+  "totals": {
+    "turns": 35,
+    "actualInputTokens": 98480,
+    "actualInputTokensEstimated": 99548,
+    "baselineInputTokensEstimated": 800503,
+    "outputTokens": 4955
+  },
+  "reductionPercent": 87.6,
+  "systemPromptTokens": {
+    "jit": 138,
+    "baseline": 5414
+  },
+  "verdict": "green"
+}

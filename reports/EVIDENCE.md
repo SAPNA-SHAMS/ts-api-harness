@@ -27,3 +27,25 @@ Extensibility simulation: **PASS** → [grader-sim.txt](grader-sim.txt)
 After `origin` was added, the harness ran `orders-cancel` on the claude driver (offline provider) and its ship step
 pushed `harness/orders-cancel-claude-20kem7` and opened **https://github.com/SAPNA-SHAMS/ts-api-harness/pull/1**.
 See [the report](../reports/20261005T075109-orders-cancel-claude-jit-20kem7.json): verdict GREEN, standards 100%, 91.6% token reduction.
+
+## Live model runs (OpenRouter, 6 October)
+
+Same task file (`tasks/users-api.json`), same hooks and checks, real drivers pointed at OpenRouter
+(`ANTHROPIC_BASE_URL=https://openrouter.ai/api`, `OPENAI_BASE_URL=https://openrouter.ai/api/v1`), `--no-ship`.
+
+| driver | model | turns | verdict | standards | input-token reduction (shadow baseline) | evidence |
+|---|---|---|---|---|---|---|
+| claude | anthropic/claude-sonnet-5.5 | 18 | GREEN | 100% | 84.4% | [report](../reports/20261006T044421-users-api-claude-jit-fq4n05.json) · [tokens](../tokens/20261006T044421-users-api-claude-jit-fq4n05.json) · [logs](../logs/20261006T044421-users-api-claude-jit-fq4n05) |
+| openai | openai/gpt-6.1-sol | 35 | GREEN | 100% | 87.6% | [report](../reports/20261006T044548-users-api-openai-jit-d09gbj.json) · [tokens](../tokens/20261006T044548-users-api-openai-jit-d09gbj.json) · [logs](../logs/20261006T044548-users-api-openai-jit-d09gbj) |
+
+**The 90% token target is not met with live models** (84.4% and 87.6%). Real models fetch every
+reference and library file up front; the harness keeps that context until it is used.
+
+What the first live run exposed ([report](../reports/20261006T043400-users-api-claude-jit-6p87ru.json)):
+the original compaction kept only the latest tool exchange, so Claude lost the task details one
+turn after fetching them and re-fetched for 40 turns without writing anything (RED, turn budget
+exhausted). The scripted stand-in never needed to remember, so it hid this. Fixes: pinned context
+(task, scope), retention until the model acts on fetched context, a token budget for the verbatim
+window, export-surface reads of harness-owned files, and readable log paths.
+
+Not yet run live: the brownfield task, `--with-baseline` measured runs, the ship step with a live model.

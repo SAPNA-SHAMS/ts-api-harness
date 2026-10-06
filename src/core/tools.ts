@@ -3,12 +3,13 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { formatStandards } from './checker.ts';
-import { isTestFile, normalizeRel, testsFor, type GateState } from './gates.ts';
+import { HARNESS_OWNED, isTestFile, normalizeRel, testsFor, type GateState } from './gates.ts';
 import { runTestFile, type TestRun } from './runner.ts';
 import type { ToolContext, ToolDef, ToolOutput } from './sdk.ts';
 import { defineTool } from './sdk.ts';
 import type { Task } from './task.ts';
-import { ensureDir, lineCount, truncateLines } from './util.ts';
+import ts from 'typescript';
+import { ensureDir, lineCount, matchesAny, OUT_ROOT, truncateLines } from './util.ts';
 
 export type ToolRuntime = {
   task: Task;
@@ -20,6 +21,23 @@ export type ToolRuntime = {
 
 const str = (v: unknown): string | undefined => (typeof v === 'string' ? v : undefined);
 const int = (v: unknown): number | undefined => (typeof v === 'number' && Number.isInteger(v) ? v : undefined);
+
+/** Declarations without bodies: what a caller needs from a module, at a fraction of its size. */
+export function exportSurface(rel: string, text: string): string {
+  const sf = ts.createSourceFile(rel, text, ts.ScriptTarget.Latest, true);
+  const out: string[] = [];
+  const head = (n: ts.Node, body: ts.Node | undefined): string => text.slice(n.getStart(sf), body === undefined ? n.end : body.getStart(sf)).trim();
+  for (const st of sf.statements) {
+    if (ts.isImportDeclaration(st)) continue;
+    const docs = ts.getJSDocCommentsAndTags(st).map((d) => d.getText(sf));
+    if (ts.isFunctionDeclaration(st)) out.push(...docs, `${head(st, st.body)};`);
+    else if (ts.isClassDeclaration(st)) {
+      const members = st.members.map((m) => (ts.isMethodDeclaration(m) || ts.isConstructorDeclaration(m) ? `  ${head(m, m.body)};` : `  ${m.getText(sf)}`));
+      out.push(...docs, `${head(st, st.members[0]) || head(st, undefined)}`.replace(/\{?\s*$/, '{'), ...members, '}');
+    } else out.push(...docs, st.getText(sf));
+  }
+  return out.join('\n');
+}
 
 function bump(state: GateState, rel: string): void {
   state.versions.set(rel, (state.versions.get(rel) ?? 0) + 1);
@@ -51,7 +69,7 @@ export function coreTools(rt: ToolRuntime): ToolDef[] {
         for (const r of ctx.task.expectedRoutes) lines.push(`  route ${r.method} ${r.path} (${r.behavior})`);
         for (const a of t.acceptance) lines.push(`  accept: ${a}`);
         const text = lines.join('\n');
-        return { status: 'ok', summary: `task ${t.name}: ${ctx.task.expectedRoutes.length} routes`, compact: text, raw: JSON.stringify(t, null, 2) };
+        return { status: 'ok', summary: `task ${t.name}: ${ctx.task.expectedRoutes.length} routes`, compact: text, raw: JSON.stringify(t, null, 2), pin: true };
       },
     }),
     defineTool({
@@ -69,7 +87,7 @@ export function coreTools(rt: ToolRuntime): ToolDef[] {
         }
         const owned = files.filter((f) => f.startsWith('src/lib/') || f === 'test/helpers.ts');
         const text = [`scope for ${rt.task.name}:`, ...lines, `harness-owned (import, do not edit): ${owned.join(', ')}`].join('\n');
-        return { status: 'ok', summary: `${relevant.length} relevant files, ${tests.length} tests`, compact: text, raw: `${text}\n\nall files:\n${files.join('\n')}` };
+        return { status: 'ok', summary: `${relevant.length} relevant files, ${tests.length} tests`, compact: text, raw: `${text}\n\nall files:\n${files.join('\n')}`, pin: true };
       },
     }),
     defineTool({
@@ -94,9 +112,25 @@ export function coreTools(rt: ToolRuntime): ToolDef[] {
       },
       run: (args, ctx) => {
         const rel = normalizeRel(args['path']);
-        const text = rel === undefined ? undefined : ctx.readText(rel);
+        // Log paths handed out by the harness (logs/<this run>/...) are readable; nothing else outside the workspace.
+        const logRel = rel !== undefined && rel.startsWith('logs/') ? join(OUT_ROOT, rel) : undefined;
+        const text = rel === undefined
+          ? undefined
+          : logRel !== undefined
+            ? (logRel.startsWith(`${rt.logDir}/`) && existsSync(logRel) ? readFileSync(logRel, 'utf8') : undefined)
+            : ctx.readText(rel);
         if (rel === undefined || text === undefined) return { status: 'error', summary: `no such file: ${String(args['path'])}` };
         const lines = text.split('\n');
+        const ranged = args['start'] !== undefined || args['end'] !== undefined;
+        if (!ranged && matchesAny(rel, HARNESS_OWNED) && rel.endsWith('.ts')) {
+          const surface = exportSurface(rel, text);
+          return {
+            status: 'ok',
+            summary: `read ${rel} export surface (${lines.length} lines)`,
+            compact: `[export surface of a harness-owned file: import from it, do not edit; pass start/end for bodies]\n${surface}`,
+            raw: text,
+          };
+        }
         const start = Math.max(1, int(args['start']) ?? 1);
         const end = Math.min(lines.length, int(args['end']) ?? lines.length);
         const numbered = lines.slice(start - 1, end).map((l, i) => `${start + i}| ${l}`).join('\n');

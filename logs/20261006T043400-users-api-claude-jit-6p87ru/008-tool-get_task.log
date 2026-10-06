@@ -1,0 +1,48 @@
+{
+  "name": "users-api",
+  "mode": "greenfield",
+  "description": "A users resource: create, fetch, list, update and delete users. Email addresses are unique.",
+  "apiVersion": "v1",
+  "resource": {
+    "name": "users",
+    "singular": "user",
+    "fields": [
+      {
+        "name": "name",
+        "type": "string",
+        "required": true,
+        "unique": false,
+        "min": 1,
+        "max": 120
+      },
+      {
+        "name": "email",
+        "type": "email",
+        "required": true,
+        "unique": true
+      },
+      {
+        "name": "age",
+        "type": "integer",
+        "required": false,
+        "unique": false,
+        "min": 0,
+        "max": 150
+      }
+    ]
+  },
+  "behaviors": [
+    "create",
+    "get",
+    "list",
+    "update",
+    "delete"
+  ],
+  "acceptance": [
+    "POST /v1/users with a duplicate email returns 409 problem+json",
+    "POST /v1/users with an invalid email returns 422 problem+json",
+    "GET /v1/users pages with an opaque cursor",
+    "DELETE /v1/users/:id returns 204, then GET returns 404"
+  ],
+  "testMap": []
+}

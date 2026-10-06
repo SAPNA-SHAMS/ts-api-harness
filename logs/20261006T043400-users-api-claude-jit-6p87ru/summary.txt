@@ -1,0 +1,7 @@
+
+verdict    RED  (turn budget (40) exhausted before finish was accepted)
+hooks      0 pass, 0 blocked, 0 recorded  {}
+tokens     90.9% fewer input tokens than baseline → tokens/20261006T043400-users-api-claude-jit-6p87ru.json
+ship       not requested
+report     reports/20261006T043400-users-api-claude-jit-6p87ru.json
+logs       logs/20261006T043400-users-api-claude-jit-6p87ru

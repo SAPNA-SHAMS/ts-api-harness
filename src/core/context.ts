@@ -5,12 +5,12 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Message, ToolCall, ToolSpec } from './sdk.ts';
 import type { Task } from './task.ts';
-import { REPO_ROOT } from './util.ts';
+import { estimateTokens, REPO_ROOT } from './util.ts';
 
 export type HistItem =
   | { kind: 'user'; jit: string; raw: string }
   | { kind: 'assistant'; text: string; calls: ToolCall[] }
-  | { kind: 'tool'; results: { callId: string; name: string; summary: string; jit: string; raw: string }[] };
+  | { kind: 'tool'; results: { callId: string; name: string; summary: string; jit: string; raw: string; pin?: boolean }[] };
 
 const PREAMBLE = `You work in a governed TypeScript REST API workspace. Deterministic harness gates enforce every rule; tools reply PASS, FAIL, BLOCKED, RED, GREEN or UNPROVEN with the reason.
 Loop: read the task, write a failing test in test/, run_tests (the harness must observe RED), write src/, run_tests and run_checks until green, then finish. src/lib/**, src/server.ts, test/helpers.ts and config are harness-owned: import, never edit.`;
@@ -67,30 +67,64 @@ function digestLine(call: ToolCall, summary: string): string {
 }
 
 /**
- * Compaction: turns older than the last `keepRecent` tool exchanges collapse into a progress digest
- * (one line per call: tool, target, summary) appended to the opening user message; executed
- * arguments over `elideOver` chars are elided everywhere.
+ * Compaction. Tool exchanges are kept verbatim from the newest backwards until `keepRecentTokens`
+ * is spent (always at least the latest one), and never before the model's latest action (write,
+ * edit, test run, finish) so fetched context survives until it is used; older turns collapse into a progress digest (one line
+ * per call) in the opening message. Pinned results (task, scope) stay verbatim in the opening
+ * message for the whole run, latest per tool. Executed arguments over `elideOver` chars are elided.
  */
-export function renderJit(history: HistItem[], keepRecent: number, elideOver: number): Message[] {
+/** Tools that act on fetched context; exploration before the latest one has been consumed. */
+const ACTIONS = new Set(['write_file', 'edit_file', 'run_tests', 'finish']);
+
+export function renderJit(history: HistItem[], keepRecentTokens: number, elideOver: number): Message[] {
   const [first, ...rest] = history;
   if (first === undefined || first.kind !== 'user') return renderRaw(history);
-  const toolIdx = rest.flatMap((h, i) => (h.kind === 'tool' ? [i] : []));
-  const keepFrom = toolIdx.length > keepRecent ? (toolIdx[toolIdx.length - keepRecent] ?? 0) - 1 : 0;
-  const start = rest[keepFrom]?.kind === 'assistant' ? keepFrom : 0;
+  let start = rest.length;
+  let spent = 0;
+  for (let i = rest.length - 1; i >= 0; i--) {
+    const h = rest[i];
+    if (h?.kind !== 'assistant') continue;
+    const next = rest[i + 1];
+    const cost = next?.kind === 'tool' ? estimateTokens(next.results.map((r) => r.jit).join('\n')) : 0;
+    if (start < rest.length && spent + cost > keepRecentTokens) break;
+    spent += cost;
+    start = i;
+  }
+  if (start === rest.length) start = 0;
+  // Context is kept until consumed: nothing fetched since the model's last action is compacted.
+  const acted = (c: ToolCall): boolean => ACTIONS.has(c.name === DISPATCH_TOOL && typeof c.args['name'] === 'string' ? c.args['name'] : c.name);
+  let lastAction = -1;
+  rest.forEach((h, i) => {
+    if (h.kind === 'assistant' && h.calls.some(acted)) lastAction = i;
+  });
+  start = Math.min(start, lastAction === -1 ? 0 : lastAction);
+  const pinned = new Map<string, string>();
+  for (const h of rest) if (h.kind === 'tool') for (const r of h.results) if (r.pin === true) pinned.set(r.name, r.jit);
   const digest: string[] = [];
   const summaries = new Map<string, string>();
   for (const h of rest.slice(0, start)) if (h.kind === 'tool') for (const r of h.results) summaries.set(r.callId, r.summary);
+  // One line per (tool, target): repeated fetches of the same thing collapse to their latest result.
+  const lines = new Map<string, string>();
+  let n = 0;
   for (const h of rest.slice(0, start)) {
     if (h.kind === 'assistant') {
-      if (h.text.trim().length > 0) digest.push(`- you noted: ${h.text.trim().slice(0, 160)}`);
-      for (const c of h.calls) digest.push(digestLine(c, summaries.get(c.id) ?? 'no result'));
-    } else if (h.kind === 'user') digest.push(`- harness: ${h.jit.slice(0, 160)}`);
+      if (h.text.trim().length > 0) lines.set(`note ${n++}`, `- you noted: ${h.text.trim().slice(0, 160)}`);
+      for (const c of h.calls) {
+        const line = digestLine(c, summaries.get(c.id) ?? 'no result');
+        const key = line.slice(0, line.indexOf(' → '));
+        lines.delete(key);
+        lines.set(key, line);
+      }
+    } else if (h.kind === 'user') lines.set(`user ${n++}`, `- harness: ${h.jit.slice(0, 160)}`);
   }
-  const opening = digest.length === 0 ? first.jit : `${first.jit}\n\nProgress so far (compacted by the harness; fetch details with tools):\n${digest.join('\n')}`;
+  digest.push(...lines.values());
+  let opening = first.jit;
+  if (pinned.size > 0) opening += `\n\nPinned context (kept for the whole run; no need to fetch again):\n${[...pinned.values()].join('\n')}`;
+  if (digest.length > 0) opening += `\n\nProgress so far (older turns compacted by the harness; files you wrote are on disk):\n${digest.join('\n')}`;
   const recent = rest.slice(start).map((h): Message => {
     if (h.kind === 'user') return { role: 'user', text: h.jit };
     if (h.kind === 'assistant') return { role: 'assistant', text: h.text, toolCalls: elideArgs(h.calls, elideOver) };
-    return { role: 'tool', results: h.results.map((r) => ({ callId: r.callId, name: r.name, content: r.jit })) };
+    return { role: 'tool', results: h.results.map((r) => ({ callId: r.callId, name: r.name, content: r.pin === true ? `[pinned in the opening message] ${r.summary}` : r.jit })) };
   });
   return [{ role: 'user', text: opening }, ...recent];
 }

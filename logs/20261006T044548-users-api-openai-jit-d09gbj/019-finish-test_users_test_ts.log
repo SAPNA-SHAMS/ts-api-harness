@@ -1,0 +1,12 @@
+✔ create, fetch, update, delete and missing user (32.0395ms)
+✔ email uniqueness on create and update (12.622584ms)
+✔ strict validation and field bounds (28.210584ms)
+✔ list paginates with opaque cursors without duplicates (15.32675ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 197.905792

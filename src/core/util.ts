@@ -13,8 +13,8 @@ const ConfigSchema = z.object({
   protectedBranches: z.array(z.string()).default(['main', 'master']),
   branchPrefix: z.string().default('harness/'),
   compaction: z
-    .object({ keepRecentToolResults: z.number().int().min(0).default(2), elideArgsOverChars: z.number().int().min(20).default(200) })
-    .default({ keepRecentToolResults: 2, elideArgsOverChars: 200 }),
+    .object({ keepRecentTokens: z.number().int().min(0).default(6000), elideArgsOverChars: z.number().int().min(20).default(200) })
+    .default({ keepRecentTokens: 6000, elideArgsOverChars: 200 }),
   readFileMaxLines: z.number().int().min(10).default(120),
   disabledPlugins: z.array(z.string()).default([]),
 });
