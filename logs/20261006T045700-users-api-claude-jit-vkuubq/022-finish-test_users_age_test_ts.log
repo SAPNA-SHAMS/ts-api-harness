@@ -1,0 +1,13 @@
+✔ age is stored and optional (17.894333ms)
+✔ age out of range or non-integer returns 422 (10.480959ms)
+✔ name longer than 120 chars returns 422 (3.077667ms)
+✔ PATCH validates age (7.708584ms)
+✔ GET /v1/users pages with an opaque cursor (11.868625ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 170.314375

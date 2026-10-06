@@ -1,0 +1,12 @@
+✔ POST creates, GET reads, list includes, PATCH updates, DELETE removes (27.604541ms)
+✔ missing user returns 404 problem+json (6.25875ms)
+✔ duplicate email returns 409 (6.977125ms)
+✔ invalid input returns 422 (2.079125ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 180.078084

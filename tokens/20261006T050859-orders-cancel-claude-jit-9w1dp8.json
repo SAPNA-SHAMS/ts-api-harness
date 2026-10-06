@@ -1,0 +1,152 @@
+{
+  "runId": "20261006T050859-orders-cancel-claude-jit-9w1dp8",
+  "task": "orders-cancel",
+  "driver": "claude",
+  "model": "anthropic/claude-sonnet-5.5",
+  "mode": "jit",
+  "contextFetchers": true,
+  "compaction": true,
+  "estimator": "ceil(chars/4) over the serialized request (system + messages + tool specs), applied identically to both columns",
+  "baseline": "same conversation rendered with context fetchers and compaction disabled: standards, references and every workspace file front-loaded; raw tool output; no compaction",
+  "turns": [
+    {
+      "turn": 1,
+      "actualInputTokens": 1278,
+      "actualInputTokensEstimated": 632,
+      "baselineInputTokensEstimated": 9418,
+      "outputTokens": 98,
+      "tools": [
+        "use_tool",
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 2,
+      "actualInputTokens": 1721,
+      "actualInputTokensEstimated": 888,
+      "baselineInputTokensEstimated": 9898,
+      "outputTokens": 121,
+      "tools": [
+        "use_tool",
+        "read_file"
+      ]
+    },
+    {
+      "turn": 3,
+      "actualInputTokens": 2813,
+      "actualInputTokensEstimated": 1527,
+      "baselineInputTokensEstimated": 10485,
+      "outputTokens": 250,
+      "tools": [
+        "read_file",
+        "read_file",
+        "read_file",
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 4,
+      "actualInputTokens": 5768,
+      "actualInputTokensEstimated": 3237,
+      "baselineInputTokensEstimated": 12068,
+      "outputTokens": 203,
+      "tools": [
+        "use_tool",
+        "read_file",
+        "read_file"
+      ]
+    },
+    {
+      "turn": 5,
+      "actualInputTokens": 8125,
+      "actualInputTokensEstimated": 4706,
+      "baselineInputTokensEstimated": 15023,
+      "outputTokens": 120,
+      "tools": [
+        "read_file"
+      ]
+    },
+    {
+      "turn": 6,
+      "actualInputTokens": 8910,
+      "actualInputTokensEstimated": 5281,
+      "baselineInputTokensEstimated": 15508,
+      "outputTokens": 752,
+      "tools": [
+        "edit_file",
+        "run_tests"
+      ]
+    },
+    {
+      "turn": 7,
+      "actualInputTokens": 9695,
+      "actualInputTokensEstimated": 5707,
+      "baselineInputTokensEstimated": 16426,
+      "outputTokens": 412,
+      "tools": [
+        "edit_file",
+        "edit_file"
+      ]
+    },
+    {
+      "turn": 8,
+      "actualInputTokens": 4474,
+      "actualInputTokensEstimated": 2596,
+      "baselineInputTokensEstimated": 16676,
+      "outputTokens": 146,
+      "tools": [
+        "read_file",
+        "read_file"
+      ]
+    },
+    {
+      "turn": 9,
+      "actualInputTokens": 5453,
+      "actualInputTokensEstimated": 3103,
+      "baselineInputTokensEstimated": 17628,
+      "outputTokens": 124,
+      "tools": [
+        "run_tests",
+        "use_tool",
+        "use_tool"
+      ]
+    },
+    {
+      "turn": 10,
+      "actualInputTokens": 5769,
+      "actualInputTokensEstimated": 3279,
+      "baselineInputTokensEstimated": 18634,
+      "outputTokens": 108,
+      "tools": [
+        "finish"
+      ]
+    }
+  ],
+  "totals": {
+    "turns": 10,
+    "actualInputTokens": 54006,
+    "actualInputTokensEstimated": 30956,
+    "baselineInputTokensEstimated": 141764,
+    "outputTokens": 2334
+  },
+  "reductionPercent": 78.2,
+  "systemPromptTokens": {
+    "jit": 138,
+    "baseline": 8319
+  },
+  "verdict": "green",
+  "measuredBaseline": {
+    "runId": "20261006T050842-orders-cancel-claude-baseline-h5jxu6",
+    "note": "a separate run of the same task on the same driver with context fetchers and compaction disabled; input tokens as reported by the driver",
+    "perTurnInputTokens": [
+      15230,
+      15572,
+      17867,
+      18465,
+      19861
+    ],
+    "totalInputTokens": 86995,
+    "turns": 5
+  },
+  "reductionVsMeasuredBaselinePercent": 37.9
+}

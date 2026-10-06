@@ -87,14 +87,18 @@ What earned it:
    one-line catalog behind a `use_tool` dispatcher. The engine unwraps it, so hooks still see the
    real tool name.
 
-**Live results miss the target.** On the same task, live Claude (`anthropic/claude-sonnet-5.5`)
-finished green at **84.4%** and live OpenAI (`openai/gpt-6.1-sol`) at **87.6%**. The scripted
-runs above reached 90.6–91.4% under an earlier policy that kept only the latest tool exchange.
-That policy failed live: Claude lost the task one turn after fetching it and re-fetched for 40
-turns without writing a file. Pinning, retention until use, and export-surface reads fixed the
-loop, at the cost of the margin. Correctness won the trade-off. Real models also fetch every
-reference up front, which is the next thing to attack (for example, by pinning one combined
-conventions sheet instead of six topics).
+**Live results miss the target.** Four live runs (both tasks, both providers) finished green
+at 78–85% against the shadow baseline. A separately measured baseline run of the brownfield task
+on Claude finished in 5 turns and 86,995 input tokens; the JIT run took 10 turns and 54,006, only
+**37.9%** less in total, even though each JIT request was 69% smaller on average (peak 9.7k vs 19.9k).
+Front-loading saves a model the turns it otherwise spends fetching. The context-window footprint
+per request shrinks a lot; total spend shrinks much less.
+
+Live runs also found two compaction bugs the scripted stand-in hid. Dropping everything but the
+last exchange made Claude re-fetch the task for 40 turns. Eliding its own writes immediately made
+it rewrite the same files five times; that run *looked* better (90.8%) only because thrashing grew
+the baseline. The current policy pins the task, scope and a one-page conventions sheet, keeps
+context until the model acts on it, and keeps the latest action visible.
 
 ## 4. Extension points
 
@@ -122,10 +126,9 @@ the route surface matches the task and snapshot; standards are re-checked on the
 committed.
 
 **UNPROVEN, labelled as such:**
-- Live runs exist only for the greenfield task without shipping: green on both providers,
-  reached through OpenRouter. The brownfield task, measured-baseline runs and the ship step have
-  only been exercised with the scripted stand-in behind `test/fake-provider/`.
-- The 90% token target is UNMET with live models (84.4%, 87.6%).
+- Live runs (OpenRouter) cover both tasks on both providers, all green, and one live ship that
+  opened PR #2. The 90% token target is UNMET live (78–85% shadow, 37.9% measured).
+- Turn budgets matter: one live OpenAI run went RED at 40 turns and passed at 60.
 - Push and pull request are proven once: the ship step opened
   [PR #1](https://github.com/SAPNA-SHAMS/ts-api-harness/pull/1). The earlier evidence runs predate
   the remote and stopped at local feature-branch commits plus `reports/<run>.patch`.

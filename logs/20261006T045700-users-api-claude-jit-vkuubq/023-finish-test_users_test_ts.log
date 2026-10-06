@@ -1,0 +1,15 @@
+✔ POST /v1/users creates a user (16.44425ms)
+✔ POST duplicate email returns 409 problem (5.351583ms)
+✔ POST invalid body returns 422 (2.375209ms)
+✔ GET /v1/users lists users (3.791833ms)
+✔ GET /v1/users/:id returns user, 404 and 422 (8.311291ms)
+✔ PATCH /v1/users/:id updates, 404s, and 409s on duplicate email (13.719875ms)
+✔ DELETE /v1/users/:id removes, then 404s (4.658167ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 168.636375

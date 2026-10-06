@@ -1,0 +1,12 @@
+
+verdict    GREEN  (all gates green)
+gate       PASS     regression-baseline: 1 existing test files green before the change
+gate       PASS     tests: 7 tests green in 1 files
+gate       PASS     regression: 1 pre-existing test files still green
+gate       PASS     observed-red: 2 source files each unlocked by an observed-red test
+gate       PASS     standards: 100% (6/6 rules)
+hooks      9 pass, 0 blocked, 0 recorded  {}
+tokens     78.2% fewer input tokens than baseline → tokens/20261006T050859-orders-cancel-claude-jit-9w1dp8.json
+ship       pushed harness/orders-cancel-claude-9w1dp8 → examples/orders-api; push done; PR https://github.com/SAPNA-SHAMS/ts-api-harness/pull/2
+report     reports/20261006T050859-orders-cancel-claude-jit-9w1dp8.json
+logs       logs/20261006T050859-orders-cancel-claude-jit-9w1dp8

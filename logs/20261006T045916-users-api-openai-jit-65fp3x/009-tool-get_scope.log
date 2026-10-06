@@ -1,0 +1,14 @@
+scope for users-api:
+  (new) src/users/schema.ts, src/users/store.ts, src/users/routes.ts, src/app.ts → test/users.test.ts
+harness-owned (import, do not edit): src/lib/http.ts, src/lib/idempotency.ts, src/lib/pagination.ts, src/lib/problem.ts, test/helpers.ts
+
+all files:
+package.json
+src/lib/http.ts
+src/lib/idempotency.ts
+src/lib/pagination.ts
+src/lib/problem.ts
+src/server.ts
+test/helpers.ts
+test/users.test.ts
+tsconfig.json

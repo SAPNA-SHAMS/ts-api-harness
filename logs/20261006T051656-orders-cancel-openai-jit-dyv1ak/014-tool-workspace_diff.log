@@ -1,0 +1,42 @@
+--- src/orders/routes.ts
++       method: 'DELETE',
++       status: 204,
++       response: NoBody,
++       handler: async ({ params }) => { store.cancel(params.id); },
+
+--- src/orders/store.ts
++   cancel(id: string): void {
++     if (current.status === 'shipped') {
++       throw problem(409, 'order-shipped', 'Order already shipped', `Order '${id}' has shipped and cannot be cancelled`);
++     this.#orders.delete(id);
+
+--- test/orders.test.ts
++ test('DELETE /v1/orders/:id cancels a pending order with an empty 204 response', async () => {
++   const created = await call(base, 'POST', '/v1/orders', { item: 'cancel-me', quantity: 1 }, 'order-cancel-pending');
++   assert.equal(created.status, 201);
++   const path = `/v1/orders/${String(field(created.json, 'id'))}`;
++   const cancelled = await call(base, 'DELETE', path);
++   assert.equal(cancelled.status, 204);
++   assert.equal(cancelled.json, undefined);
++   const missing = await call(base, 'GET', path);
++   assert.equal(missing.status, 404);
++   assert.equal(missing.type, 'application/problem+json');
++ test('DELETE /v1/orders/:id returns 404 problem+json for an unknown order', async () => {
++   const path = '/v1/orders/00000000-0000-4000-8000-000000000000';
++   const res = await call(base, 'DELETE', path);
++   assert.equal(field(res.json, 'status'), 404);
++   assert.equal(field(res.json, 'instance'), path);
++ test('DELETE /v1/orders/:id rejects shipped orders with 409 and preserves the order', async () => {
++   const created = await call(base, 'POST', '/v1/orders', { item: 'keep-shipped', quantity: 1 }, 'order-cancel-shipped');
++   assert.equal(created.status, 201);
++   const path = `/v1/orders/${String(field(created.json, 'id'))}`;
++   const shipped = await call(base, 'PATCH', path, { status: 'shipped' });
++   const res = await call(base, 'DELETE', path);
++   assert.equal(res.status, 409);
++   assert.equal(field(res.json, 'status'), 409);
++   assert.equal(field(res.json, 'instance'), path);
++   const kept = await call(base, 'GET', path);
++   assert.equal(kept.status, 200);
++   assert.deepEqual(kept.json, shipped.json);
++ test('DELETE /v1/orders/:id validates the id with 422 problem+json', async () => {
++   const res = await call(base, 'DELETE', '/v1/orders/not-a-uuid');

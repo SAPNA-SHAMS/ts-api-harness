@@ -1,0 +1,92 @@
+$ node --test test/orders.test.ts
+✔ POST /v1/orders creates an order (201) and replays on the same Idempotency-Key (19.544917ms)
+✔ POST /v1/orders rejects invalid bodies with 422 problem+json (3.054875ms)
+✔ GET /v1/orders/:id returns 404 problem+json for unknown ids (2.475667ms)
+✔ GET /v1/orders paginates with an opaque cursor (11.284083ms)
+✖ DELETE /v1/orders/:id cancels a pending order with an empty 204 response (4.487333ms)
+✖ DELETE /v1/orders/:id returns 404 problem+json for an unknown order (2.447584ms)
+✖ DELETE /v1/orders/:id rejects shipped orders with 409 and preserves the order (5.878125ms)
+✖ DELETE /v1/orders/:id validates the id with 422 problem+json (1.895792ms)
+✔ PATCH /v1/orders/:id ships an order; quantity changes after shipping are 409 (5.371666ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 5
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 189.031292
+
+✖ failing tests:
+
+test at test/orders.test.ts:49:1
+✖ DELETE /v1/orders/:id cancels a pending order with an empty 204 response (4.487333ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  405 !== 204
+  
+      at TestContext.<anonymous> (file:///Users/sapnashams/Documents/Harness%20Assignment/runs/20261006T051656-orders-cancel-openai-jit-dyv1ak/workspace/test/orders.test.ts:54:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 405,
+    expected: 204,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test/orders.test.ts:61:1
+✖ DELETE /v1/orders/:id returns 404 problem+json for an unknown order (2.447584ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  405 !== 404
+  
+      at TestContext.<anonymous> (file:///Users/sapnashams/Documents/Harness%20Assignment/runs/20261006T051656-orders-cancel-openai-jit-dyv1ak/workspace/test/orders.test.ts:64:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 405,
+    expected: 404,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test/orders.test.ts:71:1
+✖ DELETE /v1/orders/:id rejects shipped orders with 409 and preserves the order (5.878125ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  405 !== 409
+  
+      at TestContext.<anonymous> (file:///Users/sapnashams/Documents/Harness%20Assignment/runs/20261006T051656-orders-cancel-openai-jit-dyv1ak/workspace/test/orders.test.ts:78:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 405,
+    expected: 409,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test/orders.test.ts:88:1
+✖ DELETE /v1/orders/:id validates the id with 422 problem+json (1.895792ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  405 !== 422
+  
+      at TestContext.<anonymous> (file:///Users/sapnashams/Documents/Harness%20Assignment/runs/20261006T051656-orders-cancel-openai-jit-dyv1ak/workspace/test/orders.test.ts:90:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 405,
+    expected: 422,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

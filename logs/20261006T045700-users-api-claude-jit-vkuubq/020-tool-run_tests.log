@@ -1,0 +1,31 @@
+$ node --test test/users.age.test.ts
+✔ age is stored and optional (17.8245ms)
+✔ age out of range or non-integer returns 422 (6.836709ms)
+✔ name longer than 120 chars returns 422 (2.507541ms)
+✔ PATCH validates age (5.520583ms)
+✔ GET /v1/users pages with an opaque cursor (8.662ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 179.57525
+
+$ node --test test/users.test.ts
+✔ POST /v1/users creates a user (15.203292ms)
+✔ POST duplicate email returns 409 problem (4.892791ms)
+✔ POST invalid body returns 422 (1.667125ms)
+✔ GET /v1/users lists users (2.604292ms)
+✔ GET /v1/users/:id returns user, 404 and 422 (8.17975ms)
+✔ PATCH /v1/users/:id updates, 404s, and 409s on duplicate email (13.286542ms)
+✔ DELETE /v1/users/:id removes, then 404s (5.165ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 156.454375

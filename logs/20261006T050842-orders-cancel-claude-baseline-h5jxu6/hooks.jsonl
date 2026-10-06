@@ -1,0 +1,9 @@
+{"turn":2,"gate":"test-write","tool":"edit_file","path":"test/orders.test.ts","decision":"pass"}
+{"turn":2,"gate":"protect-existing-tests","tool":"edit_file","path":"test/orders.test.ts","decision":"pass"}
+{"turn":2,"gate":"standards-on-write","tool":"edit_file","path":"test/orders.test.ts","decision":"pass"}
+{"turn":3,"gate":"observed-red","tool":"edit_file","path":"src/orders/store.ts","decision":"pass"}
+{"turn":3,"gate":"protect-existing-tests","tool":"edit_file","path":"src/orders/store.ts","decision":"pass"}
+{"turn":3,"gate":"standards-on-write","tool":"edit_file","path":"src/orders/store.ts","decision":"pass"}
+{"turn":3,"gate":"observed-red","tool":"edit_file","path":"src/orders/routes.ts","decision":"pass"}
+{"turn":3,"gate":"protect-existing-tests","tool":"edit_file","path":"src/orders/routes.ts","decision":"pass"}
+{"turn":3,"gate":"standards-on-write","tool":"edit_file","path":"src/orders/routes.ts","decision":"pass"}

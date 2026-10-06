@@ -1,0 +1,10 @@
+
+verdict    GREEN  (all gates green)
+gate       PASS     tests: 12 tests green in 2 files
+gate       PASS     observed-red: 4 source files each unlocked by an observed-red test
+gate       PASS     standards: 100% (6/6 rules)
+hooks      27 pass, 0 blocked, 0 recorded  {}
+tokens     83.7% fewer input tokens than baseline → tokens/20261006T045700-users-api-claude-jit-vkuubq.json
+ship       not requested
+report     reports/20261006T045700-users-api-claude-jit-vkuubq.json
+logs       logs/20261006T045700-users-api-claude-jit-vkuubq

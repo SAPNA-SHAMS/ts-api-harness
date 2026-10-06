@@ -1,0 +1,79 @@
+{
+  "runId": "20261006T050842-orders-cancel-claude-baseline-h5jxu6",
+  "task": "orders-cancel",
+  "driver": "claude",
+  "model": "anthropic/claude-sonnet-5.5",
+  "mode": "baseline",
+  "contextFetchers": false,
+  "compaction": false,
+  "estimator": "ceil(chars/4) over the serialized request (system + messages + tool specs), applied identically to both columns",
+  "baseline": "same conversation rendered with context fetchers and compaction disabled: standards, references and every workspace file front-loaded; raw tool output; no compaction",
+  "turns": [
+    {
+      "turn": 1,
+      "actualInputTokens": 15230,
+      "actualInputTokensEstimated": 9418,
+      "baselineInputTokensEstimated": 9418,
+      "outputTokens": 27,
+      "tools": [
+        "get_scope"
+      ]
+    },
+    {
+      "turn": 2,
+      "actualInputTokens": 15572,
+      "actualInputTokensEstimated": 9634,
+      "baselineInputTokensEstimated": 9634,
+      "outputTokens": 860,
+      "tools": [
+        "edit_file",
+        "run_tests"
+      ]
+    },
+    {
+      "turn": 3,
+      "actualInputTokens": 17867,
+      "actualInputTokensEstimated": 10896,
+      "baselineInputTokensEstimated": 10896,
+      "outputTokens": 521,
+      "tools": [
+        "edit_file",
+        "edit_file"
+      ]
+    },
+    {
+      "turn": 4,
+      "actualInputTokens": 18465,
+      "actualInputTokensEstimated": 11235,
+      "baselineInputTokensEstimated": 11235,
+      "outputTokens": 51,
+      "tools": [
+        "run_tests",
+        "run_checks"
+      ]
+    },
+    {
+      "turn": 5,
+      "actualInputTokens": 19861,
+      "actualInputTokensEstimated": 12172,
+      "baselineInputTokensEstimated": 12172,
+      "outputTokens": 102,
+      "tools": [
+        "finish"
+      ]
+    }
+  ],
+  "totals": {
+    "turns": 5,
+    "actualInputTokens": 86995,
+    "actualInputTokensEstimated": 53355,
+    "baselineInputTokensEstimated": 53355,
+    "outputTokens": 1561
+  },
+  "reductionPercent": 0,
+  "systemPromptTokens": {
+    "jit": 138,
+    "baseline": 8319
+  },
+  "verdict": "green"
+}

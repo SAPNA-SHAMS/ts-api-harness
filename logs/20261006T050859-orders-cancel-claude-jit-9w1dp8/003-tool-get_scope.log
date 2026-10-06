@@ -1,0 +1,22 @@
+scope for orders-cancel:
+  src/app.ts → tests: test/orders.test.ts
+  src/orders/routes.ts → tests: test/orders.test.ts
+  src/orders/schema.ts → tests: test/orders.test.ts
+  src/orders/store.ts → tests: test/orders.test.ts
+harness-owned (import, do not edit): src/lib/http.ts, src/lib/idempotency.ts, src/lib/pagination.ts, src/lib/problem.ts, test/helpers.ts
+
+all files:
+contract.snapshot.json
+package.json
+src/app.ts
+src/lib/http.ts
+src/lib/idempotency.ts
+src/lib/pagination.ts
+src/lib/problem.ts
+src/orders/routes.ts
+src/orders/schema.ts
+src/orders/store.ts
+src/server.ts
+test/helpers.ts
+test/orders.test.ts
+tsconfig.json

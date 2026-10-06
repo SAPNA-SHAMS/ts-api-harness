@@ -1,0 +1,52 @@
+PASS     tests: 7 tests green in 1 files
+PASS     regression: 1 pre-existing test files still green
+PASS     observed-red: 2 source files each unlocked by an observed-red test
+PASS     standards: 100% (6/6 rules)
+
+contract-drift              pass     src/orders/routes.ts
+problem-json                pass     src/app.ts
+problem-json                pass     src/lib/http.ts
+problem-json                pass     src/lib/idempotency.ts
+problem-json                pass     src/lib/pagination.ts
+problem-json                pass     src/lib/problem.ts
+problem-json                pass     src/orders/routes.ts
+problem-json                pass     src/orders/schema.ts
+problem-json                pass     src/orders/store.ts
+problem-json                pass     src/server.ts
+rest-conventions            pass     src/orders/routes.ts
+strict-types                pass     src/app.ts
+strict-types                pass     src/lib/http.ts
+strict-types                pass     src/lib/idempotency.ts
+strict-types                pass     src/lib/pagination.ts
+strict-types                pass     src/lib/problem.ts
+strict-types                pass     src/orders/routes.ts
+strict-types                pass     src/orders/schema.ts
+strict-types                pass     src/orders/store.ts
+strict-types                pass     src/server.ts
+strict-types                pass     test/helpers.ts
+strict-types                pass     test/orders.test.ts
+tsc-strict                  pass     src/app.ts
+tsc-strict                  pass     src/lib/http.ts
+tsc-strict                  pass     src/lib/idempotency.ts
+tsc-strict                  pass     src/lib/pagination.ts
+tsc-strict                  pass     src/lib/problem.ts
+tsc-strict                  pass     src/orders/routes.ts
+tsc-strict                  pass     src/orders/schema.ts
+tsc-strict                  pass     src/orders/store.ts
+tsc-strict                  pass     src/server.ts
+tsc-strict                  pass     test/helpers.ts
+tsc-strict                  pass     test/orders.test.ts
+zod-boundary                pass     src/app.ts
+zod-boundary                pass     src/orders/routes.ts
+zod-boundary                pass     src/orders/schema.ts
+zod-boundary                pass     src/orders/store.ts
+zod-boundary                pass     src/server.ts
+
+contract-drift              pass     5/5 routes
+problem-json                pass     11/11 error paths
+rest-conventions            pass     5/5 routes
+strict-types                pass     11/11 files
+tsc-strict                  pass     0 errors
+zod-boundary                pass     5/5 handlers
+orm-users-explicit-columns  n/a      0/0 queries  (no ORM queries on users found)
+verdict                     100%     → dimension scored

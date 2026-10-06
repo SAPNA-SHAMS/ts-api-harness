@@ -1,0 +1,187 @@
+--- src/app.ts
++ import type { Server } from 'node:http';
++ import { createApp } from './lib/http.ts';
++ import { userRoutes } from './users/routes.ts';
++ import { UserStore } from './users/store.ts';
++ export function buildApp(): Server {
++   return createApp([...userRoutes(new UserStore())]);
++ }
+
+--- src/users/routes.ts
++ import { defineRoute, NoBody, NoParams, type Route } from '../lib/http.ts';
++ import { ListUsersQuery, User, UserCreate, UserIdParams, UserPage, UserUpdate } from './schema.ts';
++ import { UserStore } from './store.ts';
++ export function userRoutes(store: UserStore): Route[] {
++   return [
++     defineRoute({
++       method: 'GET', path: '/v1/users', status: 200, errors: [422],
++       params: NoParams, query: ListUsersQuery, body: NoBody, response: UserPage,
++       handler: async ({ query }) => store.list(query.cursor, query.limit),
++     }),
++     defineRoute({
++       method: 'GET', path: '/v1/users/:id', status: 200, errors: [404, 422],
++       params: UserIdParams, query: NoParams, body: NoBody, response: User,
++       handler: async ({ params }) => store.get(params.id),
++     }),
++     defineRoute({
++       method: 'POST', path: '/v1/users', status: 201, idempotent: true, errors: [409, 422],
++       params: NoParams, query: NoParams, body: UserCreate, response: User,
++       handler: async ({ body }) => store.create(body),
++     }),
++     defineRoute({
++       method: 'PATCH', path: '/v1/users/:id', status: 200, errors: [404, 409, 422],
++       params: UserIdParams, query: NoParams, body: UserUpdate, response: User,
++       handler: async ({ params, body }) => store.update(params.id, body),
++     }),
++     defineRoute({
++       method: 'DELETE', path: '/v1/users/:id', status: 204, errors: [404, 422],
++       params: UserIdParams, query: NoParams, body: NoBody, response: NoBody,
++       handler: async ({ params }) => { store.remove(params.id); },
++     }),
++   ];
++ }
+
+--- src/users/schema.ts
++ import { z } from 'zod';
++ import { PageQuery, pageOf } from '../lib/pagination.ts';
++ export const User = z.object({
++   id: z.uuid(),
++   name: z.string().min(1),
++   email: z.email(),
++   age: z.number().int().min(0).max(150).optional(),
++   createdAt: z.iso.datetime(),
++   updatedAt: z.iso.datetime(),
++ });
++ export type User = z.infer<typeof User>;
++ export const UserCreate = z.object({
++   name: z.string().min(1),
++   email: z.email(),
++   age: z.number().int().min(0).max(150).optional(),
++ }).strict();
++ export type UserCreate = z.infer<typeof UserCreate>;
++ export const UserUpdate = z.object({
++   name: z.string().min(1).optional(),
++   email: z.email().optional(),
++   age: z.number().int().min(0).max(150).optional(),
++ }).strict();
++ export type UserUpdate = z.infer<typeof UserUpdate>;
++ export const UserIdParams = z.object({ id: z.uuid() }).strict();
++ export const ListUsersQuery = PageQuery;
++ export const UserPage = pageOf(User);
+
+--- src/users/store.ts
++ import { randomUUID } from 'node:crypto';
++ import { paginate } from '../lib/pagination.ts';
++ import { problem } from '../lib/problem.ts';
++ import type { User, UserCreate, UserUpdate } from './schema.ts';
++ export class UserStore {
++   readonly #items = new Map<string, User>();
++   list(cursor: string | undefined, limit: number) {
++     return paginate([...this.#items.values()], cursor, limit);
++   }
++   get(id: string): User {
++     const user = this.#items.get(id);
++     if (user === undefined) {
++       throw problem(404, 'not-found', 'User not found', `No user with id '${id}'`);
++     }
++     return user;
++   }
++   create(input: UserCreate): User {
++     this.ensureUniqueEmail(input.email);
++     const now = new Date().toISOString();
++     const user: User = { ...input, id: randomUUID(), createdAt: now, updatedAt: now };
++     this.#items.set(user.id, user);
++     return user;
++   }
++   update(id: string, input: UserUpdate): User {
++     const existing = this.get(id);
++     if (input.email !== undefined) this.ensureUniqueEmail(input.email, id);
++     const user: User = { ...existing, ...input, updatedAt: new Date().toISOString() };
++     this.#items.set(id, user);
++     return user;
++   }
++   remove(id: string): void {
++     this.get(id);
++     this.#items.delete(id);
++   }
++   private ensureUniqueEmail(email: string, exceptId?: string): void {
++     for (const user of this.#items.values()) {
++       if (user.email === email && user.id !== exceptId) {
++         throw problem(409, 'conflict', 'User already exists', `A user with email '${email}' already exists`);
++       }
++     }
++   }
++ }
+
+--- test/users.test.ts
++ import assert from 'node:assert/strict';
++ import { after, before, test } from 'node:test';
++ import type { Server } from 'node:http';
++ import { call, field, start } from './helpers.ts';
++ let base = '';
++ let server: Server | undefined;
++ before(async () => ({ base, server } = await start()));
++ after(() => server?.close());
++ test('users CRUD, email uniqueness, validation and idempotency', async () => {
++   const body = { name: 'Ada', email: 'ada@example.com', age: 30 };
++   const created = await call(base, 'POST', '/v1/users', body, 'create-ada');
++   assert.equal(created.status, 201);
++   const id = field(created.json, 'id');
++   assert.equal(typeof id, 'string');
++   assert.equal(field(created.json, 'name'), 'Ada');
++   assert.equal(typeof field(created.json, 'createdAt'), 'string');
++   assert.equal(typeof field(created.json, 'updatedAt'), 'string');
++   const replay = await call(base, 'POST', '/v1/users', body, 'create-ada');
++   assert.deepEqual(replay.json, created.json);
++   const duplicate = await call(base, 'POST', '/v1/users', body, 'duplicate-ada');
++   assert.equal(duplicate.status, 409);
++   assert.equal(duplicate.type, 'application/problem+json');
++   for (const key of ['type', 'title', 'detail', 'instance']) assert.equal(typeof field(duplicate.json, key), 'string');
++   assert.equal(field(duplicate.json, 'status'), 409);
++   for (const invalid of [{ ...body, email: 'bad' }, { ...body, name: '' }, { ...body, age: -1 }, { ...body, age: 151 }, { ...body, age: 1.5 }, { ...body, extra: true }]) {
++     const res = await call(base, 'POST', '/v1/users', invalid, 'invalid-user');
++     assert.equal(res.status, 422);
++     assert.equal(res.type, 'application/problem+json');
++   }
++   const fetched = await call(base, 'GET', `/v1/users/${id}`);
++   assert.deepEqual(fetched.json, created.json);
++   const updated = await call(base, 'PATCH', `/v1/users/${id}`, { name: 'Ada Lovelace', age: 31 });
++   assert.equal(updated.status, 200);
++   assert.equal(field(updated.json, 'name'), 'Ada Lovelace');
++   assert.equal(field(updated.json, 'email'), body.email);
++   const other = await call(base, 'POST', '/v1/users', { name: 'Grace', email: 'grace@example.com' }, 'create-grace');
++   assert.equal(other.status, 201);
++   const conflict = await call(base, 'PATCH', `/v1/users/${field(other.json, 'id')}`, { email: body.email });
++   assert.equal(conflict.status, 409);
++   assert.equal(conflict.type, 'application/problem+json');
++   const removed = await call(base, 'DELETE', `/v1/users/${id}`);
++   assert.equal(removed.status, 204);
++   assert.equal(removed.json, undefined);
++   const missing = await call(base, 'GET', `/v1/users/${id}`);
++   assert.equal(missing.status, 404);
++   assert.equal(missing.type, 'application/problem+json');
++ });
++ test('list uses opaque cursor and validates input', async () => {
++   for (let i = 0; i < 3; i++) {
++     assert.equal((await call(base, 'POST', '/v1/users', { name: `Page ${i}`, email: `page${i}@example.com` }, `page-key-${i}`)).status, 201);
++   }
++   const first = await call(base, 'GET', '/v1/users?limit=1');
++   assert.equal(first.status, 200);
++   const data = field(first.json, 'data');
++   assert.ok(Array.isArray(data));
++   assert.equal(data.length, 1);
++   const cursor = field(first.json, 'nextCursor');
++   assert.equal(typeof cursor, 'string');
++   assert.notEqual(cursor, field(data[0], 'id'));
++   const next = await call(base, 'GET', `/v1/users?limit=1&cursor=${cursor}`);
++   assert.equal(next.status, 200);
++   const nextData = field(next.json, 'data');
++   assert.ok(Array.isArray(nextData));
++   assert.equal(nextData.length, 1);
++   assert.notEqual(field(data[0], 'id'), field(nextData[0], 'id'));
++   for (const path of ['/v1/users?limit=0', '/v1/users?cursor=%25', '/v1/users/not-a-uuid']) {
++     const res = await call(base, 'GET', path);
++     assert.equal(res.status, 422);
++     assert.equal(res.type, 'application/problem+json');
++   }
++ });

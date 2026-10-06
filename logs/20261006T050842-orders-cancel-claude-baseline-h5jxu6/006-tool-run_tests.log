@@ -1,0 +1,17 @@
+$ node --test test/orders.test.ts
+✔ POST /v1/orders creates an order (201) and replays on the same Idempotency-Key (19.946958ms)
+✔ POST /v1/orders rejects invalid bodies with 422 problem+json (2.2ms)
+✔ GET /v1/orders/:id returns 404 problem+json for unknown ids (1.502584ms)
+✔ GET /v1/orders paginates with an opaque cursor (12.761583ms)
+✔ DELETE /v1/orders/:id cancels a pending order (204) and a later GET is 404 (5.900208ms)
+✔ DELETE /v1/orders/:id returns 404 problem+json for unknown ids (2.155708ms)
+✔ DELETE /v1/orders/:id returns 409 problem+json for shipped orders (6.341458ms)
+✔ PATCH /v1/orders/:id ships an order; quantity changes after shipping are 409 (5.591708ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 178.658667

@@ -1,0 +1,54 @@
+$ node --test test/orders.test.ts
+✔ POST /v1/orders creates an order (201) and replays on the same Idempotency-Key (19.884458ms)
+✔ POST /v1/orders rejects invalid bodies with 422 problem+json (3.059291ms)
+✔ GET /v1/orders/:id returns 404 problem+json for unknown ids (2.655208ms)
+✔ GET /v1/orders paginates with an opaque cursor (11.447125ms)
+✖ DELETE /v1/orders/:id cancels an order (204), then it is gone (404) (3.538667ms)
+✖ DELETE /v1/orders/:id rejects a malformed id with 422 (2.697291ms)
+✔ PATCH /v1/orders/:id ships an order; quantity changes after shipping are 409 (6.025292ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 5
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 181.354625
+
+✖ failing tests:
+
+test at test/orders.test.ts:49:1
+✖ DELETE /v1/orders/:id cancels an order (204), then it is gone (404) (3.538667ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  405 !== 204
+  
+      at TestContext.<anonymous> (file:///Users/sapnashams/Documents/Harness%20Assignment/runs/20261006T050859-orders-cancel-claude-jit-9w1dp8/workspace/test/orders.test.ts:53:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 405,
+    expected: 204,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test/orders.test.ts:61:1
+✖ DELETE /v1/orders/:id rejects a malformed id with 422 (2.697291ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  405 !== 422
+  
+      at TestContext.<anonymous> (file:///Users/sapnashams/Documents/Harness%20Assignment/runs/20261006T050859-orders-cancel-claude-jit-9w1dp8/workspace/test/orders.test.ts:63:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 405,
+    expected: 422,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

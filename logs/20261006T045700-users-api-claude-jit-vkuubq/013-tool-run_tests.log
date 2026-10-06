@@ -1,0 +1,16 @@
+$ node --test test/users.test.ts
+✔ POST /v1/users creates a user (15.489917ms)
+✔ POST duplicate email returns 409 problem (5.044125ms)
+✔ POST invalid body returns 422 (3.024417ms)
+✔ GET /v1/users lists users (2.634ms)
+✔ GET /v1/users/:id returns user, 404 and 422 (8.11075ms)
+✔ PATCH /v1/users/:id updates, 404s, and 409s on duplicate email (13.327417ms)
+✔ DELETE /v1/users/:id removes, then 404s (5.330417ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 189.034625

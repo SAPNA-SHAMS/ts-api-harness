@@ -1,0 +1,12 @@
+
+verdict    GREEN  (all gates green)
+gate       PASS     regression-baseline: 1 existing test files green before the change
+gate       PASS     tests: 9 tests green in 1 files
+gate       PASS     regression: 1 pre-existing test files still green
+gate       PASS     observed-red: 2 source files each unlocked by an observed-red test
+gate       PASS     standards: 100% (6/6 rules)
+hooks      9 pass, 0 blocked, 0 recorded  {}
+tokens     84.9% fewer input tokens than baseline → tokens/20261006T051656-orders-cancel-openai-jit-dyv1ak.json
+ship       not requested
+report     reports/20261006T051656-orders-cancel-openai-jit-dyv1ak.json
+logs       logs/20261006T051656-orders-cancel-openai-jit-dyv1ak

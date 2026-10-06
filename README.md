@@ -11,13 +11,13 @@ branch. The model never commits.
 - **Run evidence:** [reports/EVIDENCE.md](reports/EVIDENCE.md).
 - **Original addition:** the declared-surface (contract-drift) gate ([below](#original-addition-declared-surface-gate)).
 
-> **Honesty note.** The same task file has run **green on live Claude
-> (`anthropic/claude-sonnet-5.5`) and live OpenAI (`openai/gpt-6.1-sol`)** through OpenRouter,
-> standards 100% on both. The live token reduction is **84.4% and 87.6%, below the 90% target**.
-> The earlier evidence (both tasks, both drivers, measured baselines) came from the real drivers
-> talking to `test/fake-provider/`, a local wire-validating server with a scripted stand-in model.
-> The ship step pushed a feature branch and opened
-> [PR #1](https://github.com/SAPNA-SHAMS/ts-api-harness/pull/1) itself, after every gate was green.
+> **Honesty note.** Both tasks ran **green on live Claude (`anthropic/claude-sonnet-5.5`) and
+> live OpenAI (`openai/gpt-6.1-sol`)** through OpenRouter, standards 100% on all four, and a live
+> run opened [PR #2](https://github.com/SAPNA-SHAMS/ts-api-harness/pull/2) through the harness's
+> ship step. **The 90% token target is not met live**: 78–85% per run against the shadow baseline,
+> and 38% against a separately measured baseline run. Details in
+> [reports/EVIDENCE.md](reports/EVIDENCE.md). Earlier evidence used a scripted stand-in behind
+> `test/fake-provider/`.
 
 ## Setup
 
@@ -150,15 +150,17 @@ Mechanisms: JIT fetchers, compact tool returns with raw logs on disk, digest com
 executed arguments, and JIT tool schemas. Numbers and per-turn tables are in
 [design §3](docs/design.md#3-token-budget).
 
-| run | model | verdict | reduction (shadow baseline) |
-|---|---|---|---|
-| users-api / claude, live | anthropic/claude-sonnet-5.5 | GREEN, 18 turns | **84.4%** |
-| users-api / openai, live | openai/gpt-6.1-sol | GREEN, 35 turns | **87.6%** |
+| live run | verdict | reduction (shadow baseline) |
+|---|---|---|
+| users-api / claude-sonnet-5.5 | GREEN, 24 turns | 83.7% |
+| users-api / gpt-6.1-sol | GREEN | 85.4% |
+| orders-cancel / claude-sonnet-5.5 | GREEN, 10 turns | 78.2% |
+| orders-cancel / gpt-6.1-sol | GREEN | 84.9% |
 
-**The 90% target is not met with live models.** The scripted runs listed in
-[reports/EVIDENCE.md](reports/EVIDENCE.md) measured 90.6–91.4% under an earlier, more aggressive
-compaction policy. That policy made live Claude loop for 40 turns without writing anything, so it
-was replaced (see [design §3](docs/design.md#3-token-budget)).
+**The 90% target is not met with live models.** Against a separately measured baseline run
+(orders-cancel, Claude), total input fell only 37.9%. Each JIT request was 69% smaller on average,
+but with everything front-loaded the model finished in 5 turns instead of 10. See
+[design §3](docs/design.md#3-token-budget).
 
 ## Extending without touching core
 

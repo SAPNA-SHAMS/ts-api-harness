@@ -1,0 +1,12 @@
+
+verdict    GREEN  (all gates green)
+gate       PASS     regression-baseline: 1 existing test files green before the change
+gate       PASS     tests: 8 tests green in 1 files
+gate       PASS     regression: 1 pre-existing test files still green
+gate       PASS     observed-red: 2 source files each unlocked by an observed-red test
+gate       PASS     standards: 100% (6/6 rules)
+hooks      9 pass, 0 blocked, 0 recorded  {}
+tokens     0% fewer input tokens than baseline → tokens/20261006T050842-orders-cancel-claude-baseline-h5jxu6.json
+ship       not requested
+report     reports/20261006T050842-orders-cancel-claude-baseline-h5jxu6.json
+logs       logs/20261006T050842-orders-cancel-claude-baseline-h5jxu6

@@ -1,0 +1,17 @@
+✔ POST /v1/orders creates an order (201) and replays on the same Idempotency-Key (19.291541ms)
+✔ POST /v1/orders rejects invalid bodies with 422 problem+json (1.780125ms)
+✔ GET /v1/orders/:id returns 404 problem+json for unknown ids (2.558584ms)
+✔ GET /v1/orders paginates with an opaque cursor (12.551292ms)
+✔ DELETE /v1/orders/:id cancels a pending order with an empty 204 response (4.155583ms)
+✔ DELETE /v1/orders/:id returns 404 problem+json for an unknown order (2.081958ms)
+✔ DELETE /v1/orders/:id rejects shipped orders with 409 and preserves the order (7.791459ms)
+✔ DELETE /v1/orders/:id validates the id with 422 problem+json (1.953083ms)
+✔ PATCH /v1/orders/:id ships an order; quantity changes after shipping are 409 (5.265208ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 167.955125

@@ -30,22 +30,32 @@ See [the report](../reports/20261005T075109-orders-cancel-claude-jit-20kem7.json
 
 ## Live model runs (OpenRouter, 6 October)
 
-Same task file (`tasks/users-api.json`), same hooks and checks, real drivers pointed at OpenRouter
-(`ANTHROPIC_BASE_URL=https://openrouter.ai/api`, `OPENAI_BASE_URL=https://openrouter.ai/api/v1`), `--no-ship`.
+Real drivers, unmodified, pointed at OpenRouter (`ANTHROPIC_BASE_URL=https://openrouter.ai/api`,
+`OPENAI_BASE_URL=https://openrouter.ai/api/v1`). Same task files, hooks and checks for both providers.
+Harness at commit `dfaea57`. Models: `anthropic/claude-sonnet-5.5` (claude driver) and `openai/gpt-6.1-sol` (openai driver).
 
-| driver | model | turns | verdict | standards | input-token reduction (shadow baseline) | evidence |
-|---|---|---|---|---|---|---|
-| claude | anthropic/claude-sonnet-5.5 | 18 | GREEN | 100% | 84.4% | [report](../reports/20261006T044421-users-api-claude-jit-fq4n05.json) · [tokens](../tokens/20261006T044421-users-api-claude-jit-fq4n05.json) · [logs](../logs/20261006T044421-users-api-claude-jit-fq4n05) |
-| openai | openai/gpt-6.1-sol | 35 | GREEN | 100% | 87.6% | [report](../reports/20261006T044548-users-api-openai-jit-d09gbj.json) · [tokens](../tokens/20261006T044548-users-api-openai-jit-d09gbj.json) · [logs](../logs/20261006T044548-users-api-openai-jit-d09gbj) |
+| task | driver | turns | verdict | standards | tests the model wrote | token reduction (shadow) | ship | evidence |
+|---|---|---|---|---|---|---|---|---|
+| users-api | claude | 24 | GREEN | 100% | 12 | 83.7% | --no-ship | [report](../reports/20261006T045700-users-api-claude-jit-vkuubq.json) · [tokens](../tokens/20261006T045700-users-api-claude-jit-vkuubq.json) |
+| users-api | openai | 60 budget | GREEN | 100% | 2 | 85.4% | --no-ship | [report](../reports/20261006T050300-users-api-openai-jit-wijk6y.json) · [tokens](../tokens/20261006T050300-users-api-openai-jit-wijk6y.json) |
+| orders-cancel | claude | 10 | GREEN | 100% | 7 | 78.2% | **pushed, [PR #2](https://github.com/SAPNA-SHAMS/ts-api-harness/pull/2)** | [report](../reports/20261006T050859-orders-cancel-claude-jit-9w1dp8.json) · [tokens](../tokens/20261006T050859-orders-cancel-claude-jit-9w1dp8.json) |
+| orders-cancel | openai | — | GREEN | 100% | 9 | 84.9% | --no-ship | [report](../reports/20261006T051656-orders-cancel-openai-jit-dyv1ak.json) · [tokens](../tokens/20261006T051656-orders-cancel-openai-jit-dyv1ak.json) |
 
-**The 90% token target is not met with live models** (84.4% and 87.6%). Real models fetch every
-reference and library file up front; the harness keeps that context until it is used.
+**Measured baseline (orders-cancel, claude):** a separate run with context fetchers and compaction off
+finished in **5 turns / 86,995** provider-reported input tokens; the JIT run took **10 turns / 54,006**:
+a **37.9%** total reduction. Per request the JIT context is far smaller (peak 9,695 vs 19,861; mean
+5,401 vs 17,399, a 69% per-turn reduction), but with everything front-loaded the model needed half
+the turns. [baseline report](../reports/20261006T050842-orders-cancel-claude-baseline-h5jxu6.json)
 
-What the first live run exposed ([report](../reports/20261006T043400-users-api-claude-jit-6p87ru.json)):
-the original compaction kept only the latest tool exchange, so Claude lost the task details one
-turn after fetching them and re-fetched for 40 turns without writing anything (RED, turn budget
-exhausted). The scripted stand-in never needed to remember, so it hid this. Fixes: pinned context
-(task, scope), retention until the model acts on fetched context, a token budget for the verbatim
-window, export-surface reads of harness-owned files, and readable log paths.
+**The 90% token target is not met with live models.** Shadow-baseline reductions are 78–85%; the
+measured total reduction is 38%.
 
-Not yet run live: the brownfield task, `--with-baseline` measured runs, the ship step with a live model.
+### Failure modes the live runs exposed (kept as evidence)
+
+| run | what happened | fix |
+|---|---|---|
+| [043400](../reports/20261006T043400-users-api-claude-jit-6p87ru.json) | RED: compaction kept one exchange; Claude lost the task each turn and re-fetched for 40 turns, writing nothing | pinned task/scope; keep context until used |
+| [045329](../reports/20261006T045329-users-api-claude-jit-j7sqto.json) | GREEN at 90.8% but 34 turns: its own writes were elided at once, so it rewrote the same four files five times (the high ratio came from thrashing) | keep the latest action's arguments and its context visible |
+| [045916](../reports/20261006T045916-users-api-openai-jit-65fp3x.json) | RED: OpenAI ran out of the 40-turn budget while fixing a red test it had edited; observed-red correctly blocked a source edit | run with `--max-turns 60` |
+
+The gates prove tests ran red then green; they do not prove tests are thorough (the OpenAI greenfield run wrote 2).
