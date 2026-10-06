@@ -16,6 +16,11 @@ export class OrderStore {
     return order;
   }
 
+  remove(id: string): void {
+    this.get(id);
+    this.#orders.delete(id);
+  }
+
   create(input: OrderCreate): Order {
     const now = new Date().toISOString();
     const order: Order = { id: randomUUID(), ...input, status: 'pending', createdAt: now, updatedAt: now };
