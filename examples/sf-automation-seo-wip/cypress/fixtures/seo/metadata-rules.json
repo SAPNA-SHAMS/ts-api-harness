@@ -1,0 +1,11 @@
+{
+  "titleMin": {
+    "default": 30,
+    "home": 30,
+    "vendor": 35,
+    "blogPost": 40
+  },
+  "descriptionMin": {
+    "default": 70
+  }
+}

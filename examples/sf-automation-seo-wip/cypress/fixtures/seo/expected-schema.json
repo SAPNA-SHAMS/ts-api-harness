@@ -1,0 +1,25 @@
+{
+  "templates": {
+    "home":          [["Organization"], ["WebSite"]],
+    "category":      [["ItemList"]],
+    "subcategory":   [["ItemList"]],
+    "vendor":        [["BreadcrumbList"], ["SoftwareApplication", "Product"]],
+    "vendorPricing": [["BreadcrumbList"]],
+    "reviews":       [["BreadcrumbList"]],
+    "alternatives":  [["BreadcrumbList"]],
+    "comparison":    [["BreadcrumbList"], ["Article", "BlogPosting"]],
+    "blogPost":      [["BreadcrumbList"], ["Article", "BlogPosting"]],
+    "paginated":     [["ItemList"]]
+  },
+  "vendorTemplates":    ["vendor"],
+  "editorialTemplates": ["comparison", "blogPost"],
+  "allowedTypes": [
+    "Organization", "Corporation", "PostalAddress", "ContactPoint", "Brand",
+    "WebSite", "WebPage", "BreadcrumbList", "ListItem",
+    "SoftwareApplication", "Product", "Offer", "AggregateOffer",
+    "AggregateRating", "Review", "Rating", "Person",
+    "Article", "BlogPosting", "FAQPage", "Question", "Answer",
+    "ItemList", "ImageObject", "SearchAction", "CollectionPage"
+  ],
+  "reviewsBlockSelector": "[role=\"progressbar\"][aria-label=\"5-star reviews\"]"
+}
