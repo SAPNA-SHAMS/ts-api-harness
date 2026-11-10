@@ -1,0 +1,4 @@
+#!/bin/sh
+# Backlog item driver (Assignment 02): ./item <command> [...]
+DIR="$(cd "$(dirname "$0")" && pwd)"
+exec python3 "$DIR/scripts/item.py" "$@"

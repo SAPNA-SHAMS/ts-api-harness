@@ -19,6 +19,27 @@ branch. The model never commits.
 > [reports/EVIDENCE.md](reports/EVIDENCE.md). Earlier evidence used a scripted stand-in behind
 > `test/fake-provider/`.
 
+## Assignment 02: backlog gates (on top of 01)
+
+The 01 core (`src/core/`) is unchanged. A02 adds Claude Code hooks wired in
+[.claude/settings.json](.claude/settings.json) plus an `./item` driver:
+
+```bash
+./item start <slug>                # active item; copies docs/contracts/_TEMPLATE.md
+./item propose <slug>              # proposal block; the stakeholder must reply in a typed turn
+./item metric <slug> before        # harness runs the contract's Read: command
+./item red <slug> -- <test cmd>    # must fail;  ./item green <slug> reruns it, must pass
+./item ship <slug>                 # branch item/<slug>, commit, push, PR (a human merges)
+./item metric <slug> after && ./item close <slug>
+npm run test:a02                   # the three grader skip attempts + surrounding paths
+```
+
+Gates: [hooks/problem_gate.py](hooks/problem_gate.py) (no source edit without a complete,
+signed contract and a red run), [hooks/contract_gate.py](hooks/contract_gate.py) (Stop holds
+until a typed yes), [checks/check_outcome.py](checks/check_outcome.py) (no close without a
+before/after metric read after a human merge). Workflow map: [docs/workflow.md](docs/workflow.md).
+Records: `items/<slug>/ledger.jsonl`.
+
 ## Setup
 
 Requires Node ≥ 22.18 (runs TypeScript directly; developed on Node 24).

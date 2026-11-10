@@ -1,0 +1,8 @@
+{
+  "sourceGlobs": ["src/*", "plugins/*", "drivers/*", "examples/*", "cypress/*", "context/*"],
+  "harnessOwnedGlobs": ["hooks/*", "checks/*", "scripts/item.py", "item", "harness.a02.json", ".claude/settings.json", ".claude/settings.local.json", "docs/contracts/_TEMPLATE.md"],
+  "testGlobs": ["*.cy.js", "*.cy.ts", "test/*", "*/test/*", "*.test.ts", "*/fixtures/*"],
+  "recordGlobs": [".harness/*", "items/*"],
+  "protectedBranches": ["main", "master", "develop", "release/*", "production"],
+  "branchPrefix": "item/"
+}

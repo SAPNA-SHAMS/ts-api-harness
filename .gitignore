@@ -3,4 +3,6 @@ runs/
 .env
 .env.*
 *.local
-.claude/
+.claude/*
+!.claude/settings.json
+.harness/
