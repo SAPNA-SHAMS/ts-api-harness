@@ -2,7 +2,7 @@
 
 Problem: Spec v2 §7–11 (structured data, images, internal links, mobile, rendering parity) are only in the manual audit. Evidence: only §7 has WIP (and WIP 7.4 WebSite/SearchAction is not in v2); §8–11 have no Cypress spec; the crawl harness runs with --no-render, so raw-vs-rendered parity is never checked anywhere.
 Owner: SEO / Website QA (Sapna Shams, code owner)
-Stakeholder: <name>
+Stakeholder: Hamza Malik
 Metric: spec §7–11 checks automated and passing on beta, per run of scripts/seo-metric.mjs   before: ____   after: ____
 Read: node scripts/seo-metric.mjs seo-content-signals
 Repo: .

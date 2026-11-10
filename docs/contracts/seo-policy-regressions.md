@@ -2,7 +2,7 @@
 
 Problem: Spec v2 §12–17 (analytics/tag manager, AEO, GEO, AI crawler policy, sitemap health, regressions for fixes shipped in October 2026) have no Cypress coverage. Evidence: no WIP spec for any of §12–17; §17 fixes were verified manually on production in October 2026 and nothing keeps them from regressing; robots.txt is never fetched by the crawl harness.
 Owner: SEO / Website QA (Sapna Shams, code owner)
-Stakeholder: <name>
+Stakeholder: Hamza Malik
 Metric: spec §12–17 checks automated and passing on beta, per run of scripts/seo-metric.mjs   before: ____   after: ____
 Read: node scripts/seo-metric.mjs seo-policy-regressions
 Repo: .

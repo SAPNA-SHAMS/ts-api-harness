@@ -9,6 +9,25 @@ import { homedir } from 'node:os';
 import { join, resolve } from 'node:path';
 
 const ROOT = resolve(import.meta.dirname, '..');
+// Cypress/Electron chatter goes to stderr and would land after our count in the harness log.
+// Re-run ourselves with stderr captured to a file so the count is always the last line out.
+import { spawnSync } from 'node:child_process';
+if (!process.env.SEO_METRIC_CHILD) {
+  const errLog = join(ROOT, 'runs', `seo-metric-stderr-${Date.now()}.log`);
+  mkdirSync(join(ROOT, 'runs'), { recursive: true });
+  const r = spawnSync(process.execPath, [import.meta.filename, ...process.argv.slice(2)],
+    { env: { ...process.env, SEO_METRIC_CHILD: '1' }, stdio: ['ignore', 'inherit', 'pipe'] });
+  writeFileSync(errLog, r.stderr ?? '');
+  if (r.status !== 0) console.log(`metric reader failed (exit ${r.status}); stderr in ${errLog}\n${String(r.stderr ?? '').trim().split('\n').slice(-5).join('\n')}`);
+  process.exit(r.status ?? 1);
+}
+// Credentials: environment first, else the git-ignored .env.local (KEY=VALUE lines). Never committed.
+if (existsSync(join(ROOT, '.env.local'))) {
+  for (const line of readFileSync(join(ROOT, '.env.local'), 'utf8').split('\n')) {
+    const m = line.match(/^\s*(AUTH_USER|AUTH_PASS)\s*=\s*(.*?)\s*$/);
+    if (m && !process.env[m[1]]) process.env[m[1]] = m[2].replace(/^(['"])(.*)\1$/, '$2');
+  }
+}
 const BETA = 'https://sf-beta.softwarefndr.com';
 const item = process.argv[2];
 const checklist = JSON.parse(readFileSync(join(ROOT, 'docs/seo-checklist.json'), 'utf8'))[item];
@@ -46,13 +65,16 @@ const res = await cypress.run({
 if (res.status === 'failed') { console.error(`cypress could not run: ${res.message}`); process.exit(3); }
 
 const results = new Map(); // id -> passed?
+const states = new Map();  // id -> { state, err } for anything not passed
 for (const run of res.runs ?? []) for (const t of run.tests ?? []) {
   const title = t.title.at(-1);
   const id = title.match(/^(\d+\.\d+)\s/)?.[1];
   if (!id || !ids.includes(id)) continue;
   results.set(id, (results.get(id) ?? true) && t.state === 'passed');
+  if (t.state !== 'passed') states.set(id, { state: t.state, err: (t.displayError ?? '').split('\n').slice(0, 4).join(' | ').slice(0, 400) });
 }
-const lines = ids.map((id) => `${results.get(id) === true ? 'PASS' : results.has(id) ? 'FAIL' : 'NONE'}  ${id}  ${checklist[id]}`);
+const label = (id) => results.get(id) === true ? 'PASS' : !results.has(id) ? 'NONE' : states.get(id)?.state === 'pending' ? 'SKIP' : 'FAIL';
+const lines = ids.map((id) => `${label(id)}  ${id}  ${checklist[id]}${states.get(id)?.err ? `\n        ${states.get(id).err}` : ''}`);
 const passing = ids.filter((id) => results.get(id) === true).length;
 writeFileSync(join(work, 'checks.txt'), lines.join('\n') + '\n');
 console.log(lines.join('\n'));
