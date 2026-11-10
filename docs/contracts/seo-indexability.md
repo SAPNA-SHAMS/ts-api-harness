@@ -15,4 +15,4 @@ Not included:
 - TypeScript: the suite is Cypress with JavaScript (.cy.js), matching the target repo and the WIP
 - no Cypress automation for the checks in spec "Dropped from the Cypress suite" (the Node crawl harness already covers them)
 - fixing the site itself; CI wiring and the mochawesome dashboard feed
-Signed: ← recorded by hooks/contract_gate.py from the stakeholder's typed yes, never typed by hand
+Signed: Hamza Malik, 2026-11-10 — "seo-indexability e2d5c8f96918 approved go ahead" (transcript 5d2b9daa-6de0-4882-b7fd-b7e1250fa3d8/11ea58bd-2c3e-487c-b72f-09cc6575c062; recorded by hooks/contract_gate.py)

@@ -1,0 +1,7 @@
+$ node scripts/seo-coverage.mjs seo-indexability
+(cwd /Users/sapnashams/Documents/Harness Assignment)
+exit 1
+
+seo-indexability: 0/10 spec ids have a test
+missing tests for: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 2.10
+

@@ -1,2 +1,5 @@
 {"ts": "2026-11-10T12:14:56Z", "event": "start"}
 {"ts": "2026-11-10T12:17:44Z", "event": "metric", "phase": "before", "value": "6", "cmd": "node scripts/seo-metric.mjs seo-indexability", "log": "items/seo-indexability/metric-before.log"}
+{"ts": "2026-11-10T12:37:21Z", "event": "signed", "hash": "e2d5c8f96918", "stakeholder": "Hamza Malik", "uuid": "11ea58bd-2c3e-487c-b72f-09cc6575c062", "session": "5d2b9daa-6de0-4882-b7fd-b7e1250fa3d8", "at": "2026-11-10T12:36:53.531Z", "words": "seo-indexability e2d5c8f96918 approved go ahead"}
+{"ts": "2026-11-10T12:37:42Z", "event": "red", "cmd": "node scripts/seo-coverage.mjs seo-indexability", "exit": 1, "log": "items/seo-indexability/red-1.log"}
+{"ts": "2026-11-10T12:37:53Z", "event": "green", "cmd": "node scripts/seo-coverage.mjs seo-indexability", "exit": 0, "log": "items/seo-indexability/green-1.log"}
