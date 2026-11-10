@@ -10,7 +10,9 @@ Scenario: WHEN the suite runs against https://sf-beta.softwarefndr.com THEN ever
 Scenario: WHEN a page's title, canonical, robots or H1 differs between raw HTML and the rendered DOM THEN the matching 11.x test fails showing both values
 Scenario: WHEN a check is red on beta because beta itself is wrong THEN it stays red and is listed, not loosened or skipped
 Not included:
-- any edit to ~/Projects/SoftwareFinder-Automation
+- any edit to ~/Projects/SoftwareFinder-Automation (the suite lives in examples/sf-seo-suite; porting it is a separate step)
+- TypeScript: the suite is Cypress with JavaScript (.cy.js), matching the target repo and the WIP
+- no Cypress automation for the checks in spec "Dropped from the Cypress suite" (the Node crawl harness already covers them): validateSd rules (offers.price/priceCurrency, aggregateRating counts, Review.reviewRating), invalid JSON-LD drop, /undefined/ in links and JSON-LD
 - Rich Results Test eligibility, real-user Core Web Vitals, axe-core a11y beyond the listed basics
 - fixing the site itself; CI wiring
 Signed: ← recorded by hooks/contract_gate.py from the stakeholder's typed yes, never typed by hand

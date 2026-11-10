@@ -1,35 +1,43 @@
 # Workflow — Sapna Shams
 
-> **TODO (Sapna):** every `TODO` below has to be in your own words. The graders read the hooks
-> next to this file, and anything here that isn't true scores against you. The gate-by-gate
-> table at the bottom already points to real files.
+> **Sapna — check every line marked _(confirm)_.** These were drafted from what this repo and
+> the A02 session show, not from you. Anything untrue scores against you; rewrite it in your words.
+
+I am QA and code owner for Software Finder's automation (`SoftwareFinder-Automation`, Cypress 14,
+JavaScript). My current backlog is the SEO Cypress suite in *SEO_Cypress_Automation_Spec_v2*.
 
 ## How work reaches me
-TODO: where the SEO / site-QA work comes from (Slack? Jira? SEO team in person? GSC emails?) and
-which one you act on first.
+A spec document from the SEO side (SEO_Cypress_Automation_Spec_v2), revised as the audit changes,
+and the manual audit doc it mirrors. The rule in that spec is "manual first, then Cypress": a
+check is only automated after someone has verified it by hand. _(confirm: also Slack / Jira? which first?)_
 
 ## Where I lose time
-TODO: your three real stalls. Candidates from this repo's history, keep only the ones that are true:
-1. Building before the ask is pinned down, then redoing it. *(01 history: the compaction policy was rewritten three times.)*
-2. Waiting on a yes from the SEO side that came in chat and got lost.
-3. Re-running the full Cypress SEO suite against live URLs to check one fix.
+1. **The spec moves under me.** v2 dropped checks the WIP already had (heading hierarchy,
+   WebSite/SearchAction) and added ones it lacked; I paused two items in this assignment because
+   "doc needs updation". _(confirm)_
+2. **Environment setup, not tests.** Beta needs basic auth; running inside VS Code breaks the
+   Cypress binary (`ELECTRON_RUN_AS_NODE`); the first metric run scored 3/33 purely on 401s. _(confirm)_
+3. **Re-running the whole suite against beta to check one section.** _(confirm)_
 
 ## What I repeat
-TODO. Candidates: naming the branch, writing the "before" number down somewhere, pasting the
-same PR description, re-running the spec to show it was red.
+Pointing Cypress at beta with the right env and auth; numbering tests to match the spec section;
+counting "how many spec checks pass" by hand for the audit; writing the same PR description. _(confirm)_
 
 ## What breaks
-TODO: mistakes you have made at least twice. Each one needs a row in the table below.
-Candidates the gates already cover:
-- Calling something done without checking the number moved → outcome check.
-- A test that was never seen failing (green from the start, so it proved nothing) → red-before-green.
-- Writing a fix and only then finding out it wasn't what was asked → problem-statement + human-yes gates.
+- **Tests drift from the spec numbering** (WIP 2.4–2.9 did not match spec 2.4–2.10). → checklist ids + coverage check.
+- **Fixtures that silently break a spec rule** (comparison and blogPost were the same URL). → contract evidence + sample-urls fixed. _(confirm: twice?)_
+- **Credentials and live as defaults** (target repo's `cypress.config.js` defaults `AUTH_PASS` and `ENVIRONMENT=live`). → metric reader is beta-only; auth sent only to the host under test.
+- **Calling a check done because it was written, not because it ran on beta.** → metric counts only tests that ran and passed; skipped production-only checks count as not passing.
 
 ## The three backlog items
-TODO, real items with a named stakeholder each:
-- `<slug>` — owner: `<who>` — metric: `<what, window>`
-- `<slug>` — owner: `<who>` — metric: `<what, window>`
-- `<slug>` — owner: `<who>` — metric: `<what, window>`
+Stakeholder for all three: **Hamza Malik**. Owner: SEO / Website QA (Sapna Shams). Metric: spec
+checks automated and passing on beta, read by `scripts/seo-metric.mjs`, before vs after merge.
+- `seo-indexability` — §2, 10 checks — before 6/10
+- `seo-headers-urls` — §3 security headers + §4 URL structure, 13 checks — before 6/13
+- `seo-metadata-headings` — §5 metadata + §6 headings, 10 checks — before 4/10
+
+`seo-page-basics` (§2–6 as one item, PR #3) was split into these three. `seo-content-signals`
+(§7–11) and `seo-policy-regressions` (§12–17) are paused until the spec doc is updated.
 
 ## Gate by gate
 | habit or failure | mechanism | file |
@@ -43,7 +51,10 @@ TODO, real items with a named stakeholder each:
 | agent never pushes or opens/merges PRs | hook (Bash) | `problem_gate.py` `check_bash` |
 | ship only from `item/<slug>`, PR body built from the contract | command | `./item ship` in [scripts/item.py](../scripts/item.py) |
 | the agent can't edit the gates, settings or ledger | hook (harness-owned + records) | `problem_gate.py`, `harness.a02.json` |
-| TODO: one row per item in "What breaks" that isn't covered above | | |
+| tests numbered to the spec; every spec id has exactly one test; no `.skip`/`.only` | check | [scripts/seo-coverage.mjs](../scripts/seo-coverage.mjs) (the red/green command) |
+| "done" = ran and passed on beta, never "written"; skipped counts as not passing | check | [scripts/seo-metric.mjs](../scripts/seo-metric.mjs) (the contract's `Read:`) |
+| beta only, never live; auth only to the host under test | check + code | `seo-metric.mjs` base-URL refusal; `basicAuth()` in `examples/sf-seo-suite/cypress/support/seo/seo-utils.js` |
+| spec check list is the source of truth, split per item | data | [docs/seo-checklist.json](seo-checklist.json) |
 
 ### Known holes (say them before a grader finds them)
 - The shell guard in `check_bash` is pattern-based. A determined command (e.g. writing through an
