@@ -15,4 +15,4 @@ Not included:
 - TypeScript: the suite is Cypress with JavaScript (.cy.js), matching the target repo and the WIP
 - slug quality and taxonomy (stay manual per spec); changing or redirecting existing long URLs
 - fixing the site itself; CI wiring and the mochawesome dashboard feed
-Signed: ← recorded by hooks/contract_gate.py from the stakeholder's typed yes, never typed by hand
+Signed: Hamza Malik, 2026-11-10 — "approved go ahead" (transcript 5d2b9daa-6de0-4882-b7fd-b7e1250fa3d8/d8869820-ff2a-465b-b254-0477a06a79c5; recorded by hooks/contract_gate.py)
