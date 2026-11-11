@@ -1,0 +1,7 @@
+$ node scripts/seo-coverage.mjs seo-headers-urls
+(cwd /Users/sapnashams/Documents/Harness Assignment)
+exit 0
+
+seo-headers-urls: 13/13 spec ids have a test
+coverage complete
+
