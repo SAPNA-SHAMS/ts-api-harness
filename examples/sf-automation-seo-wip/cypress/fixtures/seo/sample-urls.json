@@ -1,0 +1,13 @@
+{
+  "home":          "/",
+  "category":      "/accounting-software",
+  "subcategory":   "/accounting-software/accounting-practice-management",
+  "vendor":        "/accounting-software/odoo",
+  "vendorPricing": "/hr/paychex-flex/pricing",
+  "reviews":       "/emr-software/cerner/reviews",
+  "alternatives":  "/emr-software/cerner/alternatives",
+  "comparison":    "/resources/gusto-vs-quickbooks",
+  "blogPost":      "/resources/gusto-vs-quickbooks",
+  "paginated":     "/accounting-software?page=2",
+  "removed":       "/seo-qa-this-page-should-not-exist-404"
+}

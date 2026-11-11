@@ -7,13 +7,14 @@
   "bin": { "harness": "./harness" },
   "engines": { "node": ">=22.18" },
   "scripts": {
-    "setup": "npm install && chmod +x ./harness",
+    "setup": "npm install && chmod +x ./harness ./item hooks/*.py checks/*.py",
     "harness": "node src/core/cli.ts",
     "test": "node --test --test-concurrency=1 'test/*.test.ts'",
     "lint": "tsc -p tsconfig.json && node scripts/lint-agnostic.ts",
     "typecheck": "tsc -p tsconfig.json",
     "evidence": "node scripts/evidence.ts",
-    "grader-sim": "node scripts/grader-sim.ts"
+    "grader-sim": "node scripts/grader-sim.ts",
+    "test:a02": "python3 -m unittest discover -s test-a02 -v"
   },
   "dependencies": {
     "typescript": "5.9.3",

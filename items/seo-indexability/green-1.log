@@ -1,0 +1,7 @@
+$ node scripts/seo-coverage.mjs seo-indexability
+(cwd /Users/sapnashams/Documents/Harness Assignment)
+exit 0
+
+seo-indexability: 10/10 spec ids have a test
+coverage complete
+

@@ -1,0 +1,7 @@
+$ node scripts/seo-coverage.mjs seo-page-basics
+(cwd /Users/sapnashams/Documents/Harness Assignment)
+exit 0
+
+seo-page-basics: 33/33 spec ids have a test
+coverage complete
+

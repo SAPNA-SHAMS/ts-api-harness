@@ -1,0 +1,2 @@
+{"ts": "2026-11-10T12:13:53Z", "event": "start"}
+{"ts": "2026-11-10T12:21:14Z", "event": "metric", "phase": "before", "value": "4", "cmd": "node scripts/seo-metric.mjs seo-metadata-headings", "log": "items/seo-metadata-headings/metric-before.log"}

@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p /private/tmp/claude-501/-Users-sapnashams-Documents-Harness-Assignment/0b7ef489-8c7a-48da-bd74-a5de5a83ed86/scratchpad)",
+      "Bash(npm view *)",
+      "Bash(env)",
+      "Bash(node_modules/.bin/tsc -p tsconfig.json)",
+      "Bash(python3 -)",
+      "Bash(node scripts/offline-run.ts --task tasks/users-api.json --driver openai --no-ship)",
+      "Bash(./harness tokens *)",
+      "Bash(node -e ' *)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/hooks/problem_gate.py\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/hooks/contract_gate.py\""
+          }
+        ]
+      }
+    ]
+  }
+}
