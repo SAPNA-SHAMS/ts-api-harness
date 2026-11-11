@@ -1,0 +1,7 @@
+$ node scripts/seo-coverage.mjs seo-metadata-headings
+(cwd /Users/sapnashams/Documents/Harness Assignment)
+exit 0
+
+seo-metadata-headings: 10/10 spec ids have a test
+coverage complete
+

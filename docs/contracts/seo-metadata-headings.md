@@ -15,4 +15,4 @@ Not included:
 - TypeScript: the suite is Cypress with JavaScript (.cy.js), matching the target repo and the WIP
 - no Cypress automation for the checks in spec "Dropped from the Cypress suite" (title > 60, description > 160, Open Graph / Twitter missing, single H1 / H1 in <main>)
 - the WIP heading-hierarchy rule (not in spec v2); fixing the site itself; CI wiring
-Signed: ← recorded by hooks/contract_gate.py from the stakeholder's typed yes, never typed by hand
+Signed: Hamza Malik, 2026-11-10 — "approve go ahead complete the assignment" (transcript 5d2b9daa-6de0-4882-b7fd-b7e1250fa3d8/0efbb3c3-141b-416d-8c5a-c51a7b422248; recorded by hooks/contract_gate.py)
