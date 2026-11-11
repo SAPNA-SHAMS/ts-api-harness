@@ -14,6 +14,9 @@ Written from the ledger (`items/*/ledger.jsonl`), the transcript and git history
 - **The Stop gate deadlocks on a field only a human can fill.** With the contract missing the stakeholder name, Stop blocked with "finish it" — but the agent cannot finish it without inventing a name. Result: about fifteen identical blocked stops until the person pressed Esc and typed the name.
 - **`./item metric` read the last line of stdout+stderr combined.** Cypress writes to stderr, so the count was never the last line and a valid read was rejected as UNPROVEN. Worked around in `scripts/seo-metric.mjs` (stderr to its own log); `item.py` still has the bug.
 - **The yes cannot prove who typed it.** "yes go ahead. hamza malik" was typed into Sapna's session. The gate records it as Hamza's; nothing verifies that.
+- **The metric can stay flat while the work is done.** `seo-metadata-headings` read 4/10 before (WIP) and 4/10 on the finished suite: different checks pass, the count is the same, because beta's metadata really is broken ("acc" title, missing description, H1 suffix only after hydration). "Checks passing on beta" mixes two things — coverage and site health. Coverage is proven separately (`seo-coverage.mjs`, 10/10); the metric should have been split into those two numbers.
+- **Beta itself was flaky.** One preview of `seo-indexability` scored 5/10 because Cloudflare returned 521 (origin down) for three checks that passed an hour earlier. The reader does not distinguish an outage from a defect; a read taken during an outage would be recorded as real.
+- **`git checkout <branch> -- <path>` bypasses the source gate.** Used here only after the yes and the red run were recorded, so nothing was skipped — but the gate did not check it.
 - **Before/after on the WIP compares ids, not meaning.** The WIP numbered §2 differently (WIP 2.4 = robots policy, spec 2.4 = canonical raw vs rendered), so the "before" counts id matches.
 
 ## What I removed
