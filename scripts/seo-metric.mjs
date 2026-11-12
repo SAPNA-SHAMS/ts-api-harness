@@ -76,6 +76,14 @@ for (const run of res.runs ?? []) for (const t of run.tests ?? []) {
 const label = (id) => results.get(id) === true ? 'PASS' : !results.has(id) ? 'NONE' : states.get(id)?.state === 'pending' ? 'SKIP' : 'FAIL';
 const lines = ids.map((id) => `${label(id)}  ${id}  ${checklist[id]}${states.get(id)?.err ? `\n        ${states.get(id).err}` : ''}`);
 const passing = ids.filter((id) => results.get(id) === true).length;
+// A 5xx from beta (e.g. Cloudflare 521, origin down) is an outage, not a defect. Refuse to report
+// a number taken during one: the harness then records UNPROVEN instead of a false low reading.
+const outage = [...states].filter(([, s]) => /(expected|→)\s*5\d\d\b/.test(s.err ?? '')).map(([id]) => id);
+if (outage.length) {
+  console.log(lines.join('\n'));
+  console.log(`UNPROVEN: beta answered 5xx during ${outage.join(', ')}; not a reading. Re-run when beta is up.`);
+  process.exit(4);
+}
 writeFileSync(join(work, 'checks.txt'), lines.join('\n') + '\n');
 console.log(lines.join('\n'));
 console.log(`suite ${suite}\nbase ${base}\n${item}: ${passing}/${ids.length} spec checks automated and passing on beta`);

@@ -23,6 +23,17 @@
         ]
       }
     ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/hooks/bash_effects.py\""
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [

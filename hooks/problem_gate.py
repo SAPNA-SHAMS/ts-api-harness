@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import json
 import re
-import shlex
 import sys
 
 sys.path.insert(0, __import__("os").path.dirname(__file__))
@@ -18,19 +17,28 @@ def refuse(msg: str) -> None:
     sys.exit(2)
 
 
-def check_source(path: str, transcript: str | None) -> None:
+def source_problem(path: str, transcript: str | None) -> str | None:
+    """Why an edit to this source/test path is not allowed yet, or None."""
     slug = L.active_slug()
     if not slug:
-        refuse(f"problem-statement gate: {path} is source and no backlog item is active. Run ./item start <slug> and write docs/contracts/<slug>.md first.")
+        return f"problem-statement gate: {path} is source and no backlog item is active. Run ./item start <slug> and write docs/contracts/<slug>.md first."
     missing = L.missing_fields(slug)
     if missing:
-        refuse(f"problem-statement gate: docs/contracts/{slug}.md is missing: {'; '.join(missing)}. No source edit until it is complete.")
+        return f"problem-statement gate: docs/contracts/{slug}.md is missing: {'; '.join(missing)}. No source edit until it is complete."
     if not L.try_record_yes(slug, transcript):
-        refuse(f"human-yes gate: no stakeholder yes recorded for '{slug}'. Run ./item propose {slug}, paste it to the stakeholder, end your turn and wait for their typed reply.")
+        return (f"human-yes gate: no stakeholder yes recorded for '{slug}'. Run ./item propose {slug}, post it, end your turn "
+                f"and wait for a typed reply that names '{slug}' or its proposal id.")
     if L.matches(path, L.CONFIG["testGlobs"]):
-        return
+        return None
     if not L.last(slug, "red"):
-        refuse(f"red-before-green: no failing run recorded for '{slug}'. Write the test, then ./item red {slug} -- <test command>.")
+        return f"red-before-green: no failing run recorded for '{slug}'. Write the test, then ./item red {slug} -- <test command>."
+    return None
+
+
+def check_source(path: str, transcript: str | None) -> None:
+    reason = source_problem(path, transcript)
+    if reason:
+        refuse(reason)
 
 
 def check_contract_edit(path: str, new_text: str | None) -> None:
@@ -42,8 +50,9 @@ def check_contract_edit(path: str, new_text: str | None) -> None:
     old_f, new_f = L.parse_contract(cur), L.parse_contract(new_text)
     if (old_f.get("Signed") or "") != (new_f.get("Signed") or ""):
         refuse("contract gate: the Signed line is recorded by the harness from the stakeholder's typed yes, never written by hand.")
-    if L.metric_values(old_f) != L.metric_values(new_f):
-        refuse("outcome check: metric before/after values are written by ./item metric from a real read, never typed.")
+    for key in ("Metric", "Coverage"):
+        if L.metric_values(old_f, key) != L.metric_values(new_f, key):
+            refuse(f"outcome check: {key} before/after values are written by ./item metric from a real read, never typed.")
 
 
 def resulting_text(tool: str, ti: dict, path: str) -> str | None:
@@ -58,33 +67,21 @@ def resulting_text(tool: str, ti: dict, path: str) -> str | None:
     return cur
 
 
-WRITE_OPS = re.compile(r"(>>?|\btee\b|\bsed\s+-i|\bcp\b|\bmv\b|\brm\b|\btouch\b|\bpython3?\b|\bnode\b|\bperl\b|\bdd\b|\btruncate\b)")
+def is_item_cmd(cmd: str) -> bool:
+    s = cmd.strip()
+    return bool(re.match(r"^(\./item|python3?\s+scripts/item\.py)\b", s)) and not re.search(r"[;&|`\n]|\$\(", s)
 
 
-def check_bash(cmd: str, transcript: str | None, cwd: str | None) -> None:
-    stripped = cmd.strip()
-    is_item = re.match(r"^(\./item|python3?\s+scripts/item\.py)\b", stripped) and not re.search(r"[;&|`]|\$\(", stripped)
-    if re.search(r"\bgit\s+push\b|\bgh\s+pr\s+(create|merge)\b", cmd) and not is_item:
-        refuse("the agent never pushes or opens/merges PRs. ./item ship <slug> does it after every gate is clear; a human merges.")
-    if is_item:
-        return
-    if re.search(r"\.harness/|(^|[\s'\"/])items/", cmd) and WRITE_OPS.search(cmd):
-        refuse("records under .harness/ and items/ are written only by ./item and the hooks.")
-    if WRITE_OPS.search(cmd) and any(L.matches(L.rel(w.lstrip(">"), cwd), L.CONFIG["harnessOwnedGlobs"]) for w in cmd.split() if "/" in w or "." in w):
-        refuse("harness-owned files (hooks/, checks/, settings) cannot be changed by the agent.")
-    if re.search(r"docs/contracts/", cmd) and WRITE_OPS.search(cmd):
-        refuse("edit contracts with the Edit/Write tools so the contract gate can see the change, not via shell.")
-    if WRITE_OPS.search(cmd):
-        try:
-            words = shlex.split(cmd)
-        except ValueError:
-            words = cmd.split()
-        for w in words:
-            w = w.lstrip(">")
-            if "/" in w or "." in w:
-                r = L.rel(w, cwd)
-                if L.matches(r, L.CONFIG["sourceGlobs"]) or L.matches(r, L.CONFIG["testGlobs"]):
-                    check_source(r, transcript)
+# Only what cannot be undone is refused up front. Every other Bash command runs, and
+# hooks/bash_effects.py (PostToolUse) judges it by what it actually changed on disk.
+IRREVERSIBLE = re.compile(r"\bgit\s+(push|reset\s+--hard|clean\s+-\w*f)\b|\bgh\s+pr\s+(create|merge)\b")
+
+
+def check_bash(cmd: str, tool_id: str | None) -> None:
+    if IRREVERSIBLE.search(cmd) and not is_item_cmd(cmd):
+        refuse("the agent never pushes, tags, opens/merges PRs or discards work. ./item ship <slug> pushes after every gate is clear; a human merges.")
+    if tool_id:
+        L.snapshot(tool_id)
 
 
 def main() -> None:
@@ -92,7 +89,7 @@ def main() -> None:
     tool, ti = data.get("tool_name", ""), data.get("tool_input") or {}
     transcript, cwd = data.get("transcript_path"), data.get("cwd")
     if tool == "Bash":
-        check_bash(ti.get("command", ""), transcript, cwd)
+        check_bash(ti.get("command", ""), data.get("tool_use_id"))
         return
     if tool not in ("Write", "Edit", "MultiEdit", "NotebookEdit"):
         return

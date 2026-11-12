@@ -48,10 +48,23 @@ def problems(slug: str) -> list[str]:
                 out.append("metric was not read AFTER the merge (./item metric <slug> after)")
             elif after["ts"] <= st["mergedAt"].replace(".000", ""):
                 out.append(f"after-read at {after['ts']} predates the merge at {st['mergedAt']}")
+    fields = L.parse_contract(L.contract_path(slug).read_text())
     if before and after:
-        b, a = L.metric_values(L.parse_contract(L.contract_path(slug).read_text()))
+        b, a = L.metric_values(fields)
         if b != str(before["value"]) or a != str(after["value"]):
             out.append(f"contract shows before:{b} after:{a} but the harness read {before['value']} and {after['value']}")
+    # Optional Coverage: line separates "the work exists" from "the site passes". When present,
+    # the item closes only if coverage was read before and after the merge and went up.
+    if L.coverage_cmd(fields):
+        cb, ca = L.last(slug, "coverage", phase="before"), L.last(slug, "coverage", phase="after")
+        if not cb or not ca:
+            out.append("Coverage was not read both before and after the merge (./item metric reads it with the metric)")
+        else:
+            if float(ca["value"]) <= float(cb["value"]):
+                out.append(f"coverage did not go up ({cb['value']} -> {ca['value']}); the work did not land")
+            b, a = L.metric_values(fields, "Coverage")
+            if b != str(cb["value"]) or a != str(ca["value"]):
+                out.append(f"contract Coverage shows before:{b} after:{a} but the harness read {cb['value']} and {ca['value']}")
     return out
 
 

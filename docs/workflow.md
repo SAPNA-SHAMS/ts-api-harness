@@ -48,7 +48,9 @@ checks automated and passing on beta, read by `scripts/seo-metric.mjs`, before v
 | metric read before the change and after a human merge, before close | check | [checks/check_outcome.py](../checks/check_outcome.py) via `./item close` |
 | test seen failing before a non-test source edit | hook + command | `problem_gate.py` + `./item red` |
 | green proof is a rerun of the same red command | command | `./item green` |
-| agent never pushes or opens/merges PRs | hook (Bash) | `problem_gate.py` `check_bash` |
+| agent never pushes or opens/merges PRs | hook (Bash, before) | `problem_gate.py` `check_bash` |
+| a shell command can't do what an Edit would be refused (judged by what changed, then put back) | hook (Bash, after) | [hooks/bash_effects.py](../hooks/bash_effects.py) |
+| "done" means coverage went up, not just that the site number moved | check | `Coverage:` line + [checks/check_outcome.py](../checks/check_outcome.py) |
 | ship only from `item/<slug>`, PR body built from the contract | command | `./item ship` in [scripts/item.py](../scripts/item.py) |
 | the agent can't edit the gates, settings or ledger | hook (harness-owned + records) | `problem_gate.py`, `harness.a02.json` |
 | tests numbered to the spec; every spec id has exactly one test; no `.skip`/`.only` | check | [scripts/seo-coverage.mjs](../scripts/seo-coverage.mjs) (the red/green command) |
@@ -57,8 +59,8 @@ checks automated and passing on beta, read by `scripts/seo-metric.mjs`, before v
 | spec check list is the source of truth, split per item | data | [docs/seo-checklist.json](seo-checklist.json) |
 
 ### Known holes (say them before a grader finds them)
-- The shell guard in `check_bash` is pattern-based. A determined command (e.g. writing through an
-  interpreter with a computed path) can get past it. Write/Edit tools are fully gated.
-- The transcript can't prove *who* typed the yes, only that a person typed it in a user turn.
-  The stakeholder has to type it in the session themselves.
+- Shell commands are judged by their effect on this repo's working tree. Writes outside the repo
+  (e.g. into the target repo) are not seen.
+- The transcript can't prove *who* typed the yes, only that a person typed it in a user turn and
+  that it names the item. The stakeholder has to type it in the session themselves.
 - `.harness/state.json` (active item) is per-checkout and git-ignored. The ledger under `items/` is the evidence.
