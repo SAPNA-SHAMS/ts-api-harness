@@ -5,6 +5,7 @@ Owner: <team or person who pays for this>
 Stakeholder: <the person whose typed yes is required>
 Metric: <name>, <window>   before: ____   after: ____
 Read: <shell command that prints the metric as the last number on its last line>
+Coverage: <optional: command printing how much of the work exists, e.g. node scripts/seo-coverage.mjs <slug>>   before: ____   after: ____
 Repo: <path to the repo the change lives in; . for this one>
 Scenario: WHEN <condition> THEN <observable result>
 Not included:

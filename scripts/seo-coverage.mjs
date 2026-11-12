@@ -29,5 +29,7 @@ const dupes = [...found].filter(([, n]) => n > 1).map(([i]) => i);
 if (missing.length) problems.push(`missing tests for: ${missing.join(', ')}`);
 if (dupes.length) problems.push(`duplicate ids: ${dupes.join(', ')}`);
 console.log(`${item}: ${ids.length - missing.length}/${ids.length} spec ids have a test`);
-if (problems.length) { console.log(problems.join('\n')); process.exit(1); }
-console.log('coverage complete');
+if (problems.length) console.log(problems.join('\n'));
+else console.log('coverage complete');
+console.log(ids.length - missing.length); // last line: the count, read by ./item metric (Coverage:)
+process.exit(problems.length ? 1 : 0);

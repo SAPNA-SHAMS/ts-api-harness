@@ -6,9 +6,10 @@ Every step writes items/<slug>/ledger.jsonl. Nothing here takes a value on anyon
   ./item check <slug>                 list missing contract fields
   ./item propose <slug>               print the proposal block to post to the stakeholder
   ./item status [<slug>]              ledger summary
+  ./item pause <slug>                 park the active item without starting another
   ./item red <slug> -- <test cmd>     run the test; must FAIL; recorded
   ./item green <slug>                 rerun the recorded command; must PASS; recorded as proof
-  ./item metric <slug> before|after   run the contract's Read: command; record + write the value
+  ./item metric <slug> before|after   run the contract's Read: (and Coverage:, if any); record + write values
   ./item ship <slug>                  branch item/<slug>, commit, push, open PR (gates first)
   ./item close <slug>                 run checks/check_outcome.py; close only if it passes
 """
@@ -44,10 +45,15 @@ def repo_of(slug: str) -> Path:
 
 
 def run(cmd: str, cwd: Path, log: Path) -> int:
+    return run_out(cmd, cwd, log)[0]
+
+
+def run_out(cmd: str, cwd: Path, log: Path) -> tuple[int, str]:
+    """Run, log stdout and stderr in separate sections, return (exit, stdout)."""
     p = subprocess.run(cmd, shell=True, cwd=cwd, capture_output=True, text=True)
     log.parent.mkdir(parents=True, exist_ok=True)
-    log.write_text(f"$ {cmd}\n(cwd {cwd})\nexit {p.returncode}\n\n{p.stdout}\n{p.stderr}")
-    return p.returncode
+    log.write_text(f"$ {cmd}\n(cwd {cwd})\nexit {p.returncode}\n\n--- stdout ---\n{p.stdout}\n--- stderr ---\n{p.stderr}")
+    return p.returncode, p.stdout
 
 
 def cmd_start(slug: str) -> None:
@@ -59,6 +65,15 @@ def cmd_start(slug: str) -> None:
     L.append(slug, "start")
     print(f"active item: {slug}\ncontract: docs/contracts/{slug}.md")
     cmd_check(slug)
+
+
+def cmd_pause(slug: str) -> None:
+    """Park an item without starting another. Nothing is unlocked or closed; ./item start resumes it."""
+    if L.active_slug() != slug:
+        die(f"'{slug}' is not the active item ({L.active_slug()})")
+    L.append(slug, "paused")
+    L.set_active(None)
+    print(f"paused '{slug}'; no active item. Resume with ./item start {slug}")
 
 
 def cmd_check(slug: str) -> None:
@@ -110,17 +125,22 @@ def cmd_metric(slug: str, phase: str) -> None:
         st = subprocess.run(["gh", "pr", "view", ship["pr"], "--json", "state"], capture_output=True, text=True)
         if st.returncode != 0 or _j.loads(st.stdout).get("state") != "MERGED":
             die(f"PR {ship['pr']} is not merged yet; read the metric after a human merges")
-    read = L.parse_contract(L.contract_path(slug).read_text())["Read"]
-    log = LOGS / slug / f"metric-{phase}.log"
-    code = run(read, repo_of(slug), log)
-    out = log.read_text().split("\n\n", 1)[-1]
-    nums = re.findall(r"-?\d+(?:\.\d+)?%?", out.strip().splitlines()[-1] if out.strip() else "")
-    if code != 0 or not nums:
-        die(f"UNPROVEN: metric read failed (exit {code}) or printed no number on its last line; log {log.relative_to(L.ROOT)}")
-    value = nums[-1]
-    L.append(slug, "metric", phase=phase, value=value, cmd=read, log=str(log.relative_to(L.ROOT)))
-    L.set_metric_value(slug, phase, value)
-    print(f"metric {phase}: {value} (from '{read}')")
+    f = L.parse_contract(L.contract_path(slug).read_text())
+    reads = [("Metric", "metric", f["Read"])]
+    if L.coverage_cmd(f):
+        reads.append(("Coverage", "coverage", L.coverage_cmd(f)))
+    for key, event, cmd in reads:
+        log = LOGS / slug / f"{event}-{phase}.log"
+        code, out = run_out(cmd, repo_of(slug), log)
+        last_line = out.strip().splitlines()[-1] if out.strip() else ""
+        nums = re.findall(r"-?\d+(?:\.\d+)?%?", last_line)
+        # Coverage commands exit 1 while incomplete; only the metric read must exit 0.
+        if (event == "metric" and code != 0) or not nums:
+            die(f"UNPROVEN: {key} read failed (exit {code}) or printed no number on its last stdout line; log {log.relative_to(L.ROOT)}")
+        value = nums[-1]
+        L.append(slug, event, phase=phase, value=value, cmd=cmd, log=str(log.relative_to(L.ROOT)))
+        L.set_metric_value(slug, phase, value, key)
+        print(f"{key.lower()} {phase}: {value} (from '{cmd}')")
 
 
 def cmd_ship(slug: str) -> None:
@@ -192,7 +212,7 @@ def main(argv: list[str]) -> None:
         cmd_metric(rest[0], rest[1])
     elif c == "status":
         cmd_status(rest[0] if rest else None)
-    elif c in ("start", "check", "propose", "green", "ship", "close"):
+    elif c in ("start", "check", "propose", "green", "ship", "close", "pause"):
         globals()[f"cmd_{c}"](rest[0])
     else:
         die(f"unknown command {c}")

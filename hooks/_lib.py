@@ -12,6 +12,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import subprocess
 import time
 from pathlib import Path
@@ -21,6 +22,11 @@ CONFIG = json.loads((ROOT / "harness.a02.json").read_text())
 STATE = ROOT / ".harness" / "state.json"
 CONTRACTS = ROOT / "docs" / "contracts"
 ITEMS = ROOT / "items"
+
+FIELDS = ("Problem", "Owner", "Stakeholder", "Metric", "Coverage", "Read", "Repo", "Test", "Scenario", "Not included", "Signed")
+# Fields only a person can supply. While these are all that is missing, the Stop gate holds
+# (lets the agent stop to ask) instead of blocking, so it cannot loop on a question.
+HUMAN_FIELDS = ("Stakeholder", "Problem")
 
 PLACEHOLDER = re.compile(r"<[^>]*>|____")
 AFFIRM = re.compile(r"\b(yes|yep|yeah|approved?|go ahead|ship it|lgtm|agreed?|sounds good|confirmed?|ok(ay)?)\b", re.I)
@@ -78,9 +84,9 @@ def parse_contract(text: str) -> dict:
     current = None
     for raw in text.splitlines():
         line = raw.strip()
-        m = re.match(r"^(Problem|Owner|Stakeholder|Metric|Read|Repo|Test|Scenario|Not included|Signed)\s*:\s*(.*)$", line, re.I)
+        m = re.match(r"^(Problem|Owner|Stakeholder|Metric|Coverage|Read|Repo|Test|Scenario|Not included|Signed)\s*:\s*(.*)$", line, re.I)
         if m:
-            key = next(k for k in ("Problem", "Owner", "Stakeholder", "Metric", "Read", "Repo", "Test", "Scenario", "Not included", "Signed") if k.lower() == m.group(1).lower())
+            key = next(k for k in FIELDS if k.lower() == m.group(1).lower())
             current, val = key, m.group(2).strip()
             if key in ("Scenario", "Not included"):
                 if val:
@@ -94,8 +100,8 @@ def parse_contract(text: str) -> dict:
     return out
 
 
-def metric_values(fields: dict) -> tuple[str, str]:
-    m = fields.get("Metric", "")
+def metric_values(fields: dict, key: str = "Metric") -> tuple[str, str]:
+    m = fields.get(key, "")
     b = re.search(r"before:\s*([^\s]*)", m)
     a = re.search(r"after:\s*([^\s]*)", m)
     return (b.group(1) if b else "", a.group(1) if a else "")
@@ -146,11 +152,22 @@ def set_field(slug: str, key: str, value: str) -> None:
     p.write_text("\n".join(lines) + "\n")
 
 
-def set_metric_value(slug: str, phase: str, value: str) -> None:
+def set_metric_value(slug: str, phase: str, value: str, key: str = "Metric") -> None:
+    """Write before/after on the named line only (Metric or Coverage)."""
     p = contract_path(slug)
-    text = p.read_text()
-    text = re.sub(rf"({phase}:\s*)([^\s]*)", lambda m: m.group(1) + value, text, count=1)
-    p.write_text(text)
+    lines = p.read_text().splitlines()
+    for i, l in enumerate(lines):
+        if re.match(rf"^\s*{key}\s*:", l, re.I):
+            lines[i] = re.sub(rf"({phase}:\s*)([^\s]*)", lambda m: m.group(1) + value, l, count=1)
+            break
+    p.write_text("\n".join(lines) + "\n")
+
+
+def coverage_cmd(fields: dict) -> str | None:
+    """Optional 'Coverage: <command>   before: ____   after: ____' line. Returns the command."""
+    c = fields.get("Coverage", "")
+    cmd = re.split(r"\s+before:", c)[0].strip()
+    return cmd if cmd and not PLACEHOLDER.search(cmd) else None
 
 
 def signed(slug: str) -> dict | None:
@@ -216,7 +233,8 @@ def scan(slug: str, transcript_path: str | None) -> dict:
     marker = proposal_marker(slug)
     es = _entries(transcript_path)
     p_idx = max((i for i, e in enumerate(es) if e["type"] == "assistant" and marker in _text(e)), default=-1)
-    res = {"marker": marker, "proposed": p_idx >= 0, "yes": None, "tool_yes": None, "tool_after": False}
+    res = {"marker": marker, "proposed": p_idx >= 0, "yes": None, "tool_yes": None, "tool_after": False, "unnamed_yes": None}
+    h = proposal_hash(slug)
     if p_idx < 0:
         return res
     for e in es[p_idx + 1:]:
@@ -230,7 +248,12 @@ def scan(slug: str, transcript_path: str | None) -> dict:
                         res["tool_yes"] = (s or "")[:80]
         t = typed_human_text(e)
         if t is not None and res["yes"] is None and is_yes(t):
-            res["yes"] = {"uuid": e.get("uuid"), "session": e.get("sessionId"), "at": e.get("timestamp"), "words": t[:300]}
+            # The yes must name what it approves (slug or proposal id), so "yes" typed for one
+            # proposal, or "go ahead" meant for something else, cannot sign this contract.
+            if slug.lower() in t.lower() or h in t:
+                res["yes"] = {"uuid": e.get("uuid"), "session": e.get("sessionId"), "at": e.get("timestamp"), "words": t[:300]}
+            else:
+                res["unnamed_yes"] = t[:80]
     return res
 
 
@@ -268,3 +291,81 @@ def matches(path: str, globs: list[str]) -> bool:
 
 def git(args: list[str], cwd: Path) -> subprocess.CompletedProcess:
     return subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True)
+
+
+# ---------- shell effects (judge a Bash command by what it changed, not how it is spelled) ----------
+SNAPS = ROOT / ".harness" / "bash"
+
+
+def _sha(p: Path) -> str | None:
+    try:
+        return hashlib.sha256(p.read_bytes()).hexdigest()
+    except OSError:
+        return None
+
+
+def dirty_paths() -> set[str]:
+    """Tracked-modified, deleted and untracked (non-ignored) files, plus .harness/ (ignored)."""
+    out: set[str] = set()
+    for args in (["status", "--porcelain", "-uall", "--no-renames"], ["status", "--porcelain", "-uall", "--ignored", "--", ".harness"]):
+        for line in git(args, ROOT).stdout.splitlines():
+            path = line[3:].strip().strip('"')
+            if path and not path.startswith(".harness/bash/"):
+                out.add(path)
+    return out
+
+
+def head() -> str:
+    return git(["rev-parse", "HEAD"], ROOT).stdout.strip()
+
+
+def snapshot(tool_id: str) -> None:
+    """Before a Bash call: hash every dirty file and keep a copy of the ones the gates protect."""
+    d = SNAPS / tool_id
+    d.mkdir(parents=True, exist_ok=True)
+    files = {}
+    for p in dirty_paths():
+        files[p] = _sha(ROOT / p)
+        if files[p] and protected(p):
+            (d / "bak" / p).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(ROOT / p, d / "bak" / p)
+    (d / "snap.json").write_text(json.dumps({"head": head(), "files": files}))
+
+
+def protected(path: str) -> bool:
+    c = CONFIG
+    return (matches(path, c["harnessOwnedGlobs"]) or matches(path, c["recordGlobs"]) or path.startswith("docs/contracts/")
+            or matches(path, c["sourceGlobs"]) or matches(path, c["testGlobs"]))
+
+
+def changes_since(tool_id: str) -> tuple[list[str], dict]:
+    """Protected paths whose content differs from the snapshot. A branch switch that leaves a
+    file clean (equal to the new HEAD) is not a change by the agent."""
+    snap = json.loads((SNAPS / tool_id / "snap.json").read_text())
+    now = dirty_paths()
+    moved = snap["head"] != head()
+    changed = []
+    for p in set(snap["files"]) | now:
+        if not protected(p):
+            continue
+        if p in snap["files"]:
+            # was dirty before: a change only if the bytes differ (a commit leaves them equal),
+            # and not when a branch switch left it clean
+            if _sha(ROOT / p) == snap["files"][p] or (moved and p not in now):
+                continue
+        # else: clean before, dirty now -> the command changed it
+        changed.append(p)
+    return sorted(changed), snap
+
+
+def restore(tool_id: str, path: str, snap: dict) -> None:
+    """Put a protected path back to what it was before the command."""
+    bak = SNAPS / tool_id / "bak" / path
+    target = ROOT / path
+    if path in snap["files"] and snap["files"][path] and bak.exists():
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(bak, target)
+    elif git(["cat-file", "-e", f"HEAD:{path}"], ROOT).returncode == 0:
+        git(["checkout", "HEAD", "--", path], ROOT)
+    elif target.exists():
+        target.unlink()

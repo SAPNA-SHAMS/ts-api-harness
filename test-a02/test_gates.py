@@ -37,6 +37,15 @@ class Gates(unittest.TestCase):
         self.env = {**os.environ, "A02_ROOT": str(self.root)}
         self.transcript = self.root / "t.jsonl"
         self.transcript.write_text("")
+        # a real git repo, so the effect-based Bash gate can diff the working tree
+        (self.root / ".gitignore").write_text(".harness/\nt.jsonl\n")
+        (self.root / "hooks").mkdir()
+        (self.root / "hooks/problem_gate.py").write_text("# gate\n")
+        (self.root / "src").mkdir()
+        (self.root / "src/app.ts").write_text("export const a = 1;\n")
+        for c in (["init", "-q"], ["-c", "user.email=t@t", "-c", "user.name=t", "add", "-A"],
+                  ["-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "init"]):
+            subprocess.run(["git", *c], cwd=self.root, check=True, capture_output=True)
 
     def tearDown(self):
         shutil.rmtree(self.root)
@@ -90,9 +99,52 @@ class Gates(unittest.TestCase):
         self.assertEqual(r.returncode, 2)
         self.assertIn("human-yes gate", r.stderr)
 
-    def test_shell_write_to_source_is_gated(self):
-        r = self.hook("problem_gate.py", {"tool_name": "Bash", "tool_input": {"command": "echo hi > src/core/x.ts"}})
-        self.assertEqual(r.returncode, 2)
+    # ---- Bash judged by effect ----
+    def bash(self, cmd, effect=None, tid="tu1"):
+        """Pre hook, then the command's effect (simulated in Python), then the post hook."""
+        pre = self.hook("problem_gate.py", {"tool_name": "Bash", "tool_use_id": tid, "tool_input": {"command": cmd}})
+        if pre.returncode != 0:
+            return pre, None
+        if effect:
+            effect()
+        post = self.hook("bash_effects.py", {"tool_name": "Bash", "tool_use_id": tid, "tool_input": {"command": cmd}})
+        return pre, (json.loads(post.stdout) if post.stdout.strip() else {})
+
+    def test_shell_write_to_source_is_refused_and_put_back(self):
+        _, post = self.bash("echo hi > src/app.ts", lambda: (self.root / "src/app.ts").write_text("hi\n"))
+        self.assertEqual(post.get("decision"), "block")
+        self.assertIn("problem-statement gate", post["reason"])
+        self.assertEqual((self.root / "src/app.ts").read_text(), "export const a = 1;\n")
+
+    def test_new_source_file_via_shell_is_removed(self):
+        _, post = self.bash("node -e \"fs.writeFileSync('src/new.ts','x')\"", lambda: (self.root / "src/new.ts").write_text("x"))
+        self.assertEqual(post.get("decision"), "block")
+        self.assertFalse((self.root / "src/new.ts").exists())
+
+    def test_git_checkout_path_bypass_is_caught(self):
+        def effect():
+            (self.root / "hooks/problem_gate.py").write_text("# disabled\n")
+        _, post = self.bash("git checkout other -- hooks/problem_gate.py", effect)
+        self.assertEqual(post.get("decision"), "block")
+        self.assertEqual((self.root / "hooks/problem_gate.py").read_text(), "# gate\n")
+
+    def test_reads_and_redirects_are_not_refused(self):
+        for cmd in ("grep -r x src 2>/dev/null", "node -e 'console.log(1)'", "python3 -c 'print(\"a > b\")'",
+                    "git log --oneline -1", "cat 'Stakeholder: <name>' hooks/problem_gate.py"):
+            pre, post = self.bash(cmd)
+            self.assertEqual(pre.returncode, 0, cmd)
+            self.assertEqual(post, {}, cmd)
+
+    def test_unrelated_write_is_allowed(self):
+        _, post = self.bash("echo notes > notes.txt", lambda: (self.root / "notes.txt").write_text("notes"))
+        self.assertEqual(post, {})
+        self.assertTrue((self.root / "notes.txt").exists())
+
+    def test_earlier_uncommitted_edit_is_restored_not_lost(self):
+        (self.root / "src/app.ts").write_text("export const a = 2; // earlier allowed edit\n")
+        _, post = self.bash("sed -i '' s/2/3/ src/app.ts", lambda: (self.root / "src/app.ts").write_text("export const a = 3;\n"))
+        self.assertEqual(post.get("decision"), "block")
+        self.assertIn("a = 2", (self.root / "src/app.ts").read_text())
 
     def test_agent_cannot_edit_gates_or_records(self):
         for p in ("hooks/problem_gate.py", ".claude/settings.json", "items/x/ledger.jsonl", ".harness/state.json"):
@@ -134,7 +186,7 @@ class Gates(unittest.TestCase):
 
     def test_yes_before_proposal_does_not_count(self):
         self.ready_contract()
-        self.say("user", "yes go ahead")
+        self.say("user", "yes go ahead with sitemap-404")
         self.propose()
         self.assertIn("HOLD", self.stop().get("systemMessage", ""))
         self.assertEqual(self.edit("src/core/engine.ts").returncode, 2)
@@ -150,10 +202,10 @@ class Gates(unittest.TestCase):
     def test_typed_yes_after_proposal_is_recorded(self):
         slug = self.ready_contract()
         self.propose()
-        self.say("user", [{"type": "text", "text": "Yes, that's the one, go ahead."}])
+        self.say("user", [{"type": "text", "text": "Yes, sitemap-404 is the one, go ahead."}])
         self.assertEqual(self.stop(), {})
         text = (self.root / f"docs/contracts/{slug}.md").read_text()
-        self.assertIn('Signed: Test Stakeholder, 2026-11-10 — "Yes, that\'s the one, go ahead."', text)
+        self.assertIn('Signed: Test Stakeholder, 2026-11-10 — "Yes, sitemap-404 is the one, go ahead."', text)
         # test files open after the yes; source still needs a red run
         self.assertEqual(self.edit("cypress/e2e/sitemap.cy.js").returncode, 0)
         r = self.edit("src/core/engine.ts")
@@ -162,7 +214,7 @@ class Gates(unittest.TestCase):
     def test_contract_change_after_yes_needs_a_new_yes(self):
         slug = self.ready_contract()
         self.propose()
-        self.say("user", "yes")
+        self.say("user", "yes, sitemap-404 approved")
         self.stop()
         p = self.root / f"docs/contracts/{slug}.md"
         p.write_text(p.read_text().replace("fixing the pages themselves", "nothing"))
@@ -172,7 +224,7 @@ class Gates(unittest.TestCase):
     def test_close_without_metric_is_refused(self):
         slug = self.ready_contract()
         self.propose()
-        self.say("user", "yes")
+        self.say("user", "yes, sitemap-404 approved")
         self.stop()
         r = self.item("close", slug)
         self.assertEqual(r.returncode, 1)
@@ -195,7 +247,7 @@ class Gates(unittest.TestCase):
     def test_red_must_fail_and_green_must_pass(self):
         slug = self.ready_contract()
         self.propose()
-        self.say("user", "yes")
+        self.say("user", "yes, sitemap-404 approved")
         self.stop()
         self.assertEqual(self.item("red", slug, "--", "true").returncode, 1)
         self.assertEqual(self.item("red", slug, "--", "test", "-f", "done.flag").returncode, 0)
@@ -208,6 +260,66 @@ class Gates(unittest.TestCase):
         self.assertEqual(r.returncode, 2)
         r = self.hook("problem_gate.py", {"tool_name": "Bash", "tool_input": {"command": "./item ship x; git push"}})
         self.assertEqual(r.returncode, 2)
+
+
+    # ---- regressions for the gaps found while shipping the real backlog (docs/learnings.md) ----
+    def test_stop_holds_instead_of_looping_when_only_a_person_can_fill_the_gap(self):
+        self.item("start", "sitemap-404")
+        (self.root / "docs/contracts/sitemap-404.md").write_text(CONTRACT.replace("Stakeholder: Test Stakeholder", "Stakeholder: <name>"))
+        out = self.stop()
+        self.assertNotIn("decision", out)
+        self.assertIn("HOLD", out["systemMessage"])
+        self.assertIn("Stakeholder", out["systemMessage"])
+        self.assertEqual(self.edit("src/app.ts").returncode, 2)  # nothing unlocked
+
+    def test_stop_still_blocks_when_agent_can_fill_the_gap(self):
+        self.item("start", "sitemap-404")
+        (self.root / "docs/contracts/sitemap-404.md").write_text(CONTRACT.replace("Not included:\n- fixing the pages themselves\n", ""))
+        self.assertEqual(self.stop().get("decision"), "block")
+
+    def test_yes_that_does_not_name_the_item_does_not_sign(self):
+        self.ready_contract()
+        self.propose()
+        self.say("user", "approved go ahead")
+        out = self.stop()
+        self.assertIn("did not name", out.get("systemMessage", ""))
+        self.assertIn("human-yes gate", self.edit("src/app.ts").stderr)
+
+    def test_yes_naming_the_proposal_id_signs(self):
+        slug = self.ready_contract()
+        self.propose()
+        pid = self.item("propose", slug).stdout.splitlines()[2].split()[-1]
+        self.say("user", f"{pid} approved")
+        self.assertEqual(self.stop(), {})
+        self.assertIn("Signed: Test Stakeholder", (self.root / f"docs/contracts/{slug}.md").read_text())
+
+    def test_pause_parks_without_starting_another(self):
+        self.ready_contract()
+        r = self.item("pause", "sitemap-404")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual(self.stop(), {})  # no active item, nothing to hold
+        self.assertIn("no backlog item is active", self.edit("src/app.ts").stderr)
+
+    def test_coverage_line_is_read_and_typing_it_is_refused(self):
+        slug = self.ready_contract()
+        p = self.root / f"docs/contracts/{slug}.md"
+        p.write_text(p.read_text().replace("Read: echo 7", "Read: echo 7\nCoverage: printf 'x\\n3\\n'   before: ____   after: ____"))
+        r = self.item("metric", slug, "before")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        text = p.read_text()
+        self.assertIn("Coverage: printf 'x\\n3\\n'   before: 3", text)
+        self.assertIn("Metric: broken sitemap URLs, daily crawl   before: 7", text)
+        r = self.edit(f"docs/contracts/{slug}.md", text.replace("after: ____\nRead", "after: ____\nRead").replace("before: 3   after: ____", "before: 3   after: 9"))
+        self.assertEqual(r.returncode, 2)
+        self.assertIn("Coverage", r.stderr)
+
+    def test_metric_read_ignores_stderr(self):
+        slug = self.ready_contract()
+        p = self.root / f"docs/contracts/{slug}.md"
+        p.write_text(p.read_text().replace("Read: echo 7", "Read: echo 7; echo 'noise 99' 1>&2"))
+        r = self.item("metric", slug, "before")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("before: 7", p.read_text())
 
 
 if __name__ == "__main__":

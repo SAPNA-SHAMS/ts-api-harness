@@ -24,9 +24,17 @@ Written from the ledger (`items/*/ledger.jsonl`), the transcript and git history
 - A single 33-check item (`seo-page-basics`, PR #3). It was split into three items so each could carry its own contract, yes, red run, PR and metric. PR #3 is superseded.
 - Basic-auth on every `cy.request`: the WIP sent beta credentials to any host, including the live canonical. Auth now goes only to the host under test.
 
+## Fixed after submission (branch a02/gate-fixes, after tag a02-submission)
+Applied by a human: the agent wrote the patch in a scratch worktree because the gates forbid it from editing hooks/, checks/ or item.py.
+- **Bash is judged by effect.** The regex is gone. `problem_gate.py` snapshots dirty files before every Bash call; the new PostToolUse hook `hooks/bash_effects.py` diffs afterwards and puts back any protected file the command changed against the gates (including `git checkout <branch> -- <path>`). Only irreversible commands (push, PR create/merge, `reset --hard`, `clean -f`) are refused up front. Reads, `2>/dev/null`, `node -e`, quoted `>` no longer misfire (tested).
+- **No Stop loop on human-only fields.** Missing Stakeholder/Problem → HOLD (stop allowed, nothing unlocked) instead of block.
+- **The yes must name what it approves** — the slug or the proposal id. "approved go ahead" alone no longer signs; the Stop gate says why. Still not proof of identity (see next).
+- **Coverage separated from site health.** Optional `Coverage:` contract line; `./item metric` reads it with the metric; `./item close` requires coverage to rise. For the SEO items: 0 → 10/10 coverage vs 4 → 4 beta health.
+- **`./item metric` parses stdout only**; **`./item pause`** added; **the SEO metric refuses to report during a 5xx outage** (UNPROVEN instead of a false low).
+- Tests: 31 (19 original + 12 regressions).
+
 ## What I would add next
-1. Replace the Bash regex with an allowlist of read-only commands plus a post-run `git status` diff check (catch writes by effect, not by spelling).
-2. Stop gate: allow stopping when the only missing contract fields are human-only (Stakeholder, Problem in their words), with a HOLD message.
-3. Fix `item.py` to keep stderr out of the metric parse; add `./item pause <slug>`.
-4. Proposal via a channel the stakeholder owns (Slack reply / PR approval by their GitHub login) so the yes is attributable.
+1. (done, see above) effect-based Bash gate; HOLD on human-only fields; stdout-only metric parse; `pause`.
+2. Effects outside the repo (a command writing to ~/Projects/SoftwareFinder-Automation) are not seen by the git diff; a read-only mount or a second snapshot root would close that.
+3. Proposal via a channel the stakeholder owns (Slack reply / PR approval by their GitHub login) so the yes is attributable.
 5. The two paused items (`seo-content-signals` §7–11, `seo-policy-regressions` §12–17) once the spec doc is updated.
