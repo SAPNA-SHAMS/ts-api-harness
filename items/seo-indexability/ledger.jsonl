@@ -4,3 +4,5 @@
 {"ts": "2026-11-10T12:37:42Z", "event": "red", "cmd": "node scripts/seo-coverage.mjs seo-indexability", "exit": 1, "log": "items/seo-indexability/red-1.log"}
 {"ts": "2026-11-10T12:37:53Z", "event": "green", "cmd": "node scripts/seo-coverage.mjs seo-indexability", "exit": 0, "log": "items/seo-indexability/green-1.log"}
 {"ts": "2026-11-10T12:44:28Z", "event": "shipped", "branch": "item/seo-indexability", "pr": "https://github.com/SAPNA-SHAMS/ts-api-harness/pull/4", "commit": "12f9e5ca8942200f45f59c3cef61f76247b0a650"}
+{"ts": "2026-11-11T16:30:08Z", "event": "metric", "phase": "after", "value": "8", "cmd": "node scripts/seo-metric.mjs seo-indexability", "log": "items/seo-indexability/metric-after.log"}
+{"ts": "2026-11-12T04:51:41Z", "event": "closed"}

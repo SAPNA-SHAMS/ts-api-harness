@@ -3,7 +3,7 @@
 Problem: Spec v2 §2 indexability rules are checked by hand; nothing stops beta (or a release from it) shipping a bad canonical or being indexable. Evidence: the crawl harness stores canonical but checks none of the §2 rules; the WIP numbers §2 out of spec order from 2.4 on and has no check that staging serves its own robots.txt — and beta today serves G2's robots.txt (G2 sitemaps) and index,follow on every sample page.
 Owner: SEO / Website QA (Sapna Shams, code owner)
 Stakeholder: Hamza Malik
-Metric: spec §2 checks automated and passing on beta, per run of scripts/seo-metric.mjs   before: 6   after: ____
+Metric: spec §2 checks automated and passing on beta, per run of scripts/seo-metric.mjs   before: 6   after: 8
 Read: node scripts/seo-metric.mjs seo-indexability
 Repo: .
 Scenario: WHEN the suite runs against https://sf-beta.softwarefndr.com THEN each of the 10 §2 checks (2.1–2.10 in docs/seo-checklist.json) has one test titled with its id and passes or fails naming the URL

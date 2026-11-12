@@ -3,7 +3,7 @@
 Problem: Spec v2 §5 metadata and §6 headings beyond the crawl harness's length caps and single-H1 report are checked by hand. Evidence: on beta today the category title is "acc", the pricing page has no meta description, and the paginated listing's "- Page 2" H1 suffix exists only after hydration; the WIP's §6 tests a heading-hierarchy rule that is not in v2 and misses the paginated-H1 rule that is, and its sample-urls.json uses one URL for both comparison and blogPost.
 Owner: SEO / Website QA (Sapna Shams, code owner)
 Stakeholder: Hamza Malik
-Metric: spec §5–6 checks automated and passing on beta, per run of scripts/seo-metric.mjs   before: 4   after: ____
+Metric: spec §5–6 checks automated and passing on beta, per run of scripts/seo-metric.mjs   before: 4   after: 4
 Read: node scripts/seo-metric.mjs seo-metadata-headings
 Repo: .
 Scenario: WHEN the suite runs against https://sf-beta.softwarefndr.com THEN each of the 10 §5–6 checks (5.1–5.7, 6.1–6.3 in docs/seo-checklist.json) has one test titled with its id and passes or fails naming the URL and tag

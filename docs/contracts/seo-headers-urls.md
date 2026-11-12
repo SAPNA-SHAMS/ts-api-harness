@@ -3,7 +3,7 @@
 Problem: Spec v2 §3 security headers and §4 URL structure are not in the crawl harness at all, and §4 has no Cypress spec. Evidence: on beta today camera and microphone are not restricted by Permissions-Policy, there is no Content-Security-Policy, and 29 sitemap URLs carry uppercase slugs (e.g. /cybersecurity/IPinfo); none of this is caught by anything automated.
 Owner: SEO / Website QA (Sapna Shams, code owner)
 Stakeholder: Hamza Malik
-Metric: spec §3–4 checks automated and passing on beta, per run of scripts/seo-metric.mjs   before: 6   after: ____
+Metric: spec §3–4 checks automated and passing on beta, per run of scripts/seo-metric.mjs   before: 6   after: 10
 Read: node scripts/seo-metric.mjs seo-headers-urls
 Repo: .
 Scenario: WHEN the suite runs against https://sf-beta.softwarefndr.com THEN each of the 13 §3–4 checks (3.1–3.8, 4.1–4.5 in docs/seo-checklist.json) has one test titled with its id and passes or fails naming the URL and header

@@ -1,0 +1,237 @@
+$ node scripts/seo-metric.mjs seo-metadata-headings
+(cwd /Users/sapnashams/Documents/Harness Assignment)
+exit 0
+
+
+
+  §6 Headings
+    ✓ 6.1 H1 not empty and not the brand name only (7830ms)
+    1) 6.2 headings in raw HTML, not only after hydration
+    2) 6.3 paginated listing: page suffix in the H1 (e.g. "- Page 2") is in raw HTML
+
+
+  1 passing (23s)
+  2 failing
+
+  1) §6 Headings
+       6.2 headings in raw HTML, not only after hydration:
+     AssertionError: paginated /accounting-software?page=2: H1 "accounting software - page 2" only after hydration: expected [ Array(1) ] to be empty
+      at Object.proxyGetter [as get] (https://sf-beta.softwarefndr.com/__cypress/runner/cypress_runner.js:80289:22)
+      at report (webpack:///../../examples/sf-seo-suite/cypress/e2e/seo/headings.cy.js:29:75)
+      at Context.eval (webpack:///../../examples/sf-seo-suite/cypress/e2e/seo/headings.cy.js:58:18)
+
+  2) §6 Headings
+       6.3 paginated listing: page suffix in the H1 (e.g. "- Page 2") is in raw HTML:
+     AssertionError: /accounting-software?page=2 raw H1 "Accounting Software" must carry "Page 2": expected 'Accounting Software' to match /page\s*2\b/i
+      at Context.eval (webpack:///../../examples/sf-seo-suite/cypress/e2e/seo/headings.cy.js:65:75)
+
+
+
+
+
+  §2 Indexability
+    ✓ 2.1 canonical link element present (exactly once) in raw HTML (4305ms)
+    ✓ 2.2 canonical href is an absolute https:// URL (4127ms)
+    ✓ 2.3 canonical href resolves to 200 (not a redirect or 404) (8469ms)
+    ✓ 2.4 canonical in raw HTML matches canonical in rendered DOM (14889ms)
+    ✓ 2.5 pagination page has a self-referencing canonical (not page 1) (1126ms)
+    - 2.6 meta robots on production is not noindex unless on noindex-safelist.json
+    1) 2.7 staging is noindex,nofollow and serves its own robots.txt
+    ✓ 2.8 HTTP redirects to HTTPS with a 301 (140ms)
+    ✓ 2.9 www vs non-www: only one variant returns 200 without redirect (3467ms)
+    ✓ 2.10 trailing slash convention consistent — one variant redirects to the other (246ms)
+
+
+  8 passing (42s)
+  1 pending
+  1 failing
+
+  1) §2 Indexability
+       2.7 staging is noindex,nofollow and serves its own robots.txt:
+     AssertionError: home /: not noindex,nofollow (,)
+category /accounting-software: not noindex,nofollow (index,follow,)
+subcategory /accounting-software/accounting-practice-management: not noindex,nofollow (index,follow,)
+vendor /accounting-software/odoo: not noindex,nofollow (index,follow,)
+vendorPricing /hr/paychex-flex/pricing: not noindex,nofollow (index,follow,)
+reviews /emr-software/cerner/reviews: not noindex,nofollow (index,follow,)
+alternatives /emr-software/cerner/alternatives: not noindex,nofollow (index,follow,)
+comparison /resources/gusto-vs-quickbooks: not noindex,nofollow (index,follow,)
+blogPost /resources/ehr-benefits: not noindex,nofollow (index,follow,)
+paginated /accounting-software?page=2: not noindex,nofollow (index,follow,)
+robots.txt lists another site's sitemaps: https://www.g2.com/sitemaps/sitemap_index.xml.gz, https://www.g2.com/sitemaps/sitemap_index_compare.xml.gz: expected [ Array(11) ] to be empty
+      at Object.proxyGetter [as get] (https://sf-beta.softwarefndr.com/__cypress/runner/cypress_runner.js:80289:22)
+      at Context.eval (webpack:///../../examples/sf-seo-suite/cypress/e2e/seo/indexability.cy.js:32:62)
+      at getRet (https://sf-beta.softwarefndr.com/__cypress/runner/cypress_runner.js:120941:20)
+
+
+
+
+
+  §5 Metadata — title, description
+    ✓ 5.1 exactly one <title> in raw HTML (4280ms)
+    1) 5.2 title meets minimum length for its page type
+    ✓ 5.3 title present in raw HTML (not injected by JavaScript) (4ms)
+    ✓ 5.4 titles unique across the sample set (4ms)
+    2) 5.5 exactly one meta description in raw HTML
+    3) 5.6 meta description meets minimum length
+    4) 5.7 meta description not empty, 'null' or 'undefined'
+
+
+  3 passing (4s)
+  4 failing
+
+  1) §5 Metadata — title, description
+       5.2 title meets minimum length for its page type:
+     AssertionError: category /accounting-software: title 3 chars < 30: "acc"
+paginated /accounting-software?page=2: title 12 chars < 30: "Page 2 - acc": expected [ Array(2) ] to be empty
+      at Object.proxyGetter [as get] (https://sf-beta.softwarefndr.com/__cypress/runner/cypress_runner.js:80289:22)
+      at checkAll (webpack:///../../examples/sf-seo-suite/cypress/e2e/seo/metadata.cy.js:33:48)
+      at Context.eval (webpack:///../../examples/sf-seo-suite/cypress/e2e/seo/metadata.cy.js:44:4)
+
+  2) §5 Metadata — title, description
+       5.5 exactly one meta description in raw HTML:
+     AssertionError: vendorPricing /hr/paychex-flex/pricing: found 0 meta descriptions: expected [ Array(1) ] to be empty
+      at Object.proxyGetter [as get] (https://sf-beta.softwarefndr.com/__cypress/runner/cypress_runner.js:80289:22)
+      at checkAll (webpack:///../../examples/sf-seo-suite/cypress/e2e/seo/metadata.cy.js:33:48)
+      at Context.eval (webpack:///../../examples/sf-seo-suite/cypress/e2e/seo/metadata.cy.js:65:4)
+
+  3) §5 Metadata — title, description
+       5.6 meta description meets minimum length:
+     AssertionError: category /accounting-software: description 15 chars < 70
+vendorPricing /hr/paychex-flex/pricing: description 0 chars < 70
+paginated /accounting-software?page=2: description 24 chars < 70: expected [ Array(3) ] to be empty
+      at Object.proxyGetter [as get] (https://sf-beta.softwarefndr.com/__cypress/runner/cypress_runner.js:80289:22)
+      at checkAll (webpack:///../../examples/sf-seo-suite/cypress/e2e/seo/metadata.cy.js:33:48)
+      at Context.eval (webpack:///../../examples/sf-seo-suite/cypress/e2e/seo/metadata.cy.js:71:4)
+
+  4) §5 Metadata — title, description
+       5.7 meta description not empty, 'null' or 'undefined':
+     AssertionError: vendorPricing /hr/paychex-flex/pricing: description is "null": expected [ Array(1) ] to be empty
+      at Object.proxyGetter [as get] (https://sf-beta.softwarefndr.com/__cypress/runner/cypress_runner.js:80289:22)
+      at checkAll (webpack:///../../examples/sf-seo-suite/cypress/e2e/seo/metadata.cy.js:33:48)
+      at Context.eval (webpack:///../../examples/sf-seo-suite/cypress/e2e/seo/metadata.cy.js:79:4)
+
+
+
+
+
+  §3 Security headers
+    ✓ 3.1 served over HTTPS with a valid certificate (1740ms)
+    ✓ 3.2 Strict-Transport-Security present, max-age >= 15768000 (4244ms)
+    ✓ 3.3 X-Content-Type-Options = nosniff (4154ms)
+    ✓ 3.4 X-Frame-Options = SAMEORIGIN or CSP frame-ancestors set (4281ms)
+    ✓ 3.5 Referrer-Policy is strict-origin-when-cross-origin or another approved value (4178ms)
+    1) 3.6 Permissions-Policy present and restrictive on camera, microphone, geolocation
+    2) 3.7 Content-Security-Policy present (report-only acceptable, absence is not)
+    ✓ 3.8 no mixed content: script and stylesheet URLs in raw HTML use https:// (4772ms)
+
+
+  6 passing (32s)
+  2 failing
+
+  1) §3 Security headers
+       3.6 Permissions-Policy present and restrictive on camera, microphone, geolocation:
+     AssertionError: /: not restricted: camera, microphone (geolocation=(),browsing-topics=())
+/accounting-software: not restricted: camera, microphone (geolocation=(),browsing-topics=())
+/accounting-software/accounting-practice-management: not restricted: camera, microphone (geolocation=(),browsing-topics=())
+/accounting-software/odoo: not restricted: camera, microphone (geolocation=(),browsing-topics=())
+/hr/paychex-flex/pricing: not restricted: camera, microphone (geolocation=(),browsing-topics=())
+/emr-software/cerner/reviews: not restricted: camera, microphone (geolocation=(),browsing-topics=())
+/emr-software/cerner/alternatives: not restricted: camera, microphone (geolocation=(),browsing-topics=())
+/resources/gusto-vs-quickbooks: not restricted: camera, microphone (geolocation=(),browsing-topics=())
+/resources/ehr-benefits: not restricted: camera, microphone (geolocation=(),browsing-topics=())
+/accounting-software?page=2: not restricted: camera, microphone (geolocation=(),browsing-topics=()): expected [ Array(10) ] to be empty
+      at Object.proxyGetter [as get] (https://sf-beta.softwarefndr.com/__cypress/runner/cypress_runner.js:80289:22)
+      at Context.eval (webpack:///../../examples/sf-seo-suite/cypress/e2e/seo/security-headers.cy.js:26:62)
+      at getRet (https://sf-beta.softwarefndr.com/__cypress/runner/cypress_runner.js:120941:20)
+
+  2) §3 Security headers
+       3.7 Content-Security-Policy present (report-only acceptable, absence is not):
+     AssertionError: /: CSP missing
+/accounting-software: CSP missing
+/accounting-software/accounting-practice-management: CSP missing
+/accounting-software/odoo: CSP missing
+/hr/paychex-flex/pricing: CSP missing
+/emr-software/cerner/reviews: CSP missing
+/emr-software/cerner/alternatives: CSP missing
+/resources/gusto-vs-quickbooks: CSP missing
+/resources/ehr-benefits: CSP missing
+/accounting-software?page=2: CSP missing: expected [ Array(10) ] to be empty
+      at Object.proxyGetter [as get] (https://sf-beta.softwarefndr.com/__cypress/runner/cypress_runner.js:80289:22)
+      at Context.eval (webpack:///../../examples/sf-seo-suite/cypress/e2e/seo/security-headers.cy.js:26:62)
+      at getRet (https://sf-beta.softwarefndr.com/__cypress/runner/cypress_runner.js:120941:20)
+
+
+
+
+
+  §4 URL structure
+    1) 4.1 sitemap URLs lowercase, no underscores, spaces or percent-encoding; dots only for safelisted legacy slugs
+    ✓ 4.2 URL length: fail above 200 characters, report 100–200 (non-blocking) (19ms)
+    ✓ 4.3 no dynamic parameters on primary content URLs (safelist allowed) (20ms)
+    ✓ 4.4 removed pages return a real 404, not 200 with a 404 template (soft-404) (267ms)
+    ✓ 4.5 custom 404 template renders on a known removed URL (1579ms)
+
+
+  4 passing (6s)
+  1 failing
+
+  1) §4 URL structure
+       4.1 sitemap URLs lowercase, no underscores, spaces or percent-encoding; dots only for safelisted legacy slugs:
+     AssertionError: 29 problems
+uppercase: https://sf-beta.softwarefndr.com/project-management-software/maestroCR
+uppercase: https://sf-beta.softwarefndr.com/cybersecurity/IPinfo
+uppercase: https://sf-beta.softwarefndr.com/nonprofit/Donately
+uppercase: https://sf-beta.softwarefndr.com/nonprofit/Morweb-org
+uppercase: https://sf-beta.softwarefndr.com/legal/LawGro
+uppercase: https://sf-beta.softwarefndr.com/auto-repair-software/autoS2000
+uppercase: https://sf-beta.softwarefndr.com/collaboration-productivity-software/Appcues
+uppercase: https://sf-beta.softwarefndr.com/cybersecurity/quantifind-Graphyte
+uppercase: https://sf-beta.softwarefndr.com/legal/Clarra
+uppercase: https://sf-beta.softwarefndr.com/property-management-software/re-Leased
+uppercase: https://sf-beta.softwarefndr.com/design-software/PhotoWorks
+uppercase: https://sf-beta.softwarefndr.com/crm/Twozo
+uppercase: https://sf-beta.softwarefndr.com/marketing-software/Navu
+uppercase: https://sf-beta.softwarefndr.com/project-management-software/maestroCR/reviews
+uppercase: https://sf-beta.softwarefndr.com/cybersecurity/IPinfo/reviews
+uppercase: https://sf-beta.softwarefndr.com/legal/LawGro/reviews
+uppercase: https://sf-beta.softwarefndr.com/auto-repair-software/autoS2000/reviews
+uppercase: https://sf-beta.softwarefndr.com/collaboration-productivity-software/Appcues/reviews
+uppercase: https://sf-beta.softwarefndr.com/cybersecurity/quantifind-Graphyte/reviews
+uppercase: https://sf-beta.softwarefndr.com/property-management-software/re-Leased/reviews
+uppercase: https://sf-beta.softwarefndr.com/cybersecurity/IPinfo/alternatives
+uppercase: https://sf-beta.softwarefndr.com/nonprofit/Donately/alternatives
+uppercase: https://sf-beta.softwarefndr.com/nonprofit/Morweb-org/alternatives
+uppercase: https://sf-beta.softwarefndr.com/legal/LawGro/alternatives
+uppercase: https://sf-beta.softwarefndr.com/collaboration-productivity-software/Appcues/alternatives
+uppercase: https://sf-beta.softwarefndr.com/cybersecurity/quantifind-Graphyte/alternatives
+uppercase: https://sf-beta.softwarefndr.com/legal/Clarra/alternatives
+uppercase: https://sf-beta.softwarefndr.com/property-management-software/re-Leased/alternatives
+uppercase: https://sf-beta.softwarefndr.com/resources/Chalkboards-to-digital-boards-journey-of-lms: expected [ Array(29) ] to be empty
+      at Object.proxyGetter [as get] (https://sf-beta.softwarefndr.com/__cypress/runner/cypress_runner.js:80289:22)
+      at report (webpack:///../../examples/sf-seo-suite/cypress/e2e/seo/url-structure.cy.js:15:67)
+      at Context.eval (webpack:///../../examples/sf-seo-suite/cypress/e2e/seo/url-structure.cy.js:29:4)
+
+
+
+PASS  5.1  one <title>
+FAIL  5.2  title min length by type
+        AssertionError: category /accounting-software: title 3 chars < 30: "acc" | paginated /accounting-software?page=2: title 12 chars < 30: "Page 2 - acc": expected [ Array(2) ] to be empty |     at Object.proxyGetter [as get] (https://sf-beta.softwarefndr.com/__cypress/runner/cypress_runner.js:80289:22) |     at checkAll (webpack:///../../examples/sf-seo-suite/cypress/e2e/seo/metadata.cy.js:33:48)
+PASS  5.3  title in raw HTML
+PASS  5.4  titles unique
+FAIL  5.5  one meta description
+        AssertionError: vendorPricing /hr/paychex-flex/pricing: found 0 meta descriptions: expected [ Array(1) ] to be empty |     at Object.proxyGetter [as get] (https://sf-beta.softwarefndr.com/__cypress/runner/cypress_runner.js:80289:22) |     at checkAll (webpack:///../../examples/sf-seo-suite/cypress/e2e/seo/metadata.cy.js:33:48) |     at Context.eval (webpack:///../../examples/sf-seo-suite/cypress/e
+FAIL  5.6  description min length
+        AssertionError: category /accounting-software: description 15 chars < 70 | vendorPricing /hr/paychex-flex/pricing: description 0 chars < 70 | paginated /accounting-software?page=2: description 24 chars < 70: expected [ Array(3) ] to be empty |     at Object.proxyGetter [as get] (https://sf-beta.softwarefndr.com/__cypress/runner/cypress_runner.js:80289:22)
+FAIL  5.7  description not empty/null/undefined
+        AssertionError: vendorPricing /hr/paychex-flex/pricing: description is "null": expected [ Array(1) ] to be empty |     at Object.proxyGetter [as get] (https://sf-beta.softwarefndr.com/__cypress/runner/cypress_runner.js:80289:22) |     at checkAll (webpack:///../../examples/sf-seo-suite/cypress/e2e/seo/metadata.cy.js:33:48) |     at Context.eval (webpack:///../../examples/sf-seo-suite/cypress/e2e/s
+PASS  6.1  H1 not empty / not brand only
+FAIL  6.2  headings in raw HTML
+        AssertionError: paginated /accounting-software?page=2: H1 "accounting software - page 2" only after hydration: expected [ Array(1) ] to be empty |     at Object.proxyGetter [as get] (https://sf-beta.softwarefndr.com/__cypress/runner/cypress_runner.js:80289:22) |     at report (webpack:///../../examples/sf-seo-suite/cypress/e2e/seo/headings.cy.js:29:75) |     at Context.eval (webpack:///../../examp
+FAIL  6.3  paginated H1 page suffix in raw HTML
+        AssertionError: /accounting-software?page=2 raw H1 "Accounting Software" must carry "Page 2": expected 'Accounting Software' to match /page\s*2\b/i |     at Context.eval (webpack:///../../examples/sf-seo-suite/cypress/e2e/seo/headings.cy.js:65:75)
+suite /Users/sapnashams/Documents/Harness Assignment/examples/sf-seo-suite/cypress
+base https://sf-beta.softwarefndr.com
+seo-metadata-headings: 4/10 spec checks automated and passing on beta
+4
+
